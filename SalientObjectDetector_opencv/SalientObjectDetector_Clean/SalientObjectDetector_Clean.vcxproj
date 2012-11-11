@@ -147,6 +147,8 @@
     <None Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\library\Algorithm\array_hash_map.h" />
+    <ClInclude Include="..\library\Algorithm\fast_array.h" />
     <ClInclude Include="..\library\Algorithm\functional_ex.h" />
     <ClInclude Include="..\library\Algorithm\IntegralImage.h" />
     <ClInclude Include="..\library\Algorithm\nms.h" />
@@ -186,6 +188,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\library\Algorithm\array_hash_map.cpp" />
     <ClCompile Include="..\library\Algorithm\IntegralImage.cpp" />
     <ClCompile Include="..\library\EHSW\IncrHistCalculator.cpp" />
     <ClCompile Include="..\library\EHSW\IncrMultiHistCalculator.cpp" />
@@ -196,7 +199,6 @@
     <ClCompile Include="..\WindowSaliency\SalientRegionDetector.cpp" />
     <ClCompile Include="..\WindowSaliency\SegmentBasedWindowComposer.cpp" />
     <ClCompile Include="opencv_interface.cpp" />
-    <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="test_compile.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

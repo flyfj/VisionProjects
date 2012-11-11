@@ -145,11 +145,14 @@
     <ClInclude Include="..\library\Algorithm\IntegralImage.h">
       <Filter>library\Algorithm</Filter>
     </ClInclude>
+    <ClInclude Include="..\library\Algorithm\array_hash_map.h">
+      <Filter>library\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\Algorithm\fast_array.h">
+      <Filter>library\Algorithm</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\WindowSaliency\SalientRegionDetector.cpp">
       <Filter>WindowSaliency</Filter>
     </ClCompile>
@@ -182,6 +185,9 @@
     </ClCompile>
     <ClCompile Include="opencv_interface.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\Algorithm\array_hash_map.cpp">
+      <Filter>library\Algorithm</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
