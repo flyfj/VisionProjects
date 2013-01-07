@@ -1,7 +1,7 @@
 #include "wrapper.h"
 #include "segment-image.h"
 
-#include <assert.h>
+//#include <assert.h>
 
 int graph_based_segment(const Mat& img, float sigma, float c, int min_size, ImageUIntSimple& indexImg, unsigned char* segmentedImg)
 {
@@ -19,6 +19,7 @@ int graph_based_segment(const Mat& img, float sigma, float c, int min_size, Imag
 		val.r = imgval.val[2];
 		val.b = imgval.val[0];
 		val.g = imgval.val[1];
+		//cout<<(int)val.r<<" "<<(int)val.b<<" "<<(int)val.g<<endl;
 		input.access[y][x] = val;
 	}
 

@@ -252,11 +252,16 @@ bool SalientRegionDetector::Init(const Mat& img)
 	float sigma = g_para.segSigma, c = g_para.segThresholdK; 
 	int min_size = g_para.segMinArea;
 
+	Mat segmentMat;
 	Timer t;
 	int superpixel_num = graph_based_segment(img, sigma, c, min_size, seg_index_map, &segmentedImg[0]);
 	g_runinfo.seg_num = superpixel_num;
 	g_runinfo.seg_t = t.Stamp();
 	printf("generate %d segments : %.1f ms\n", superpixel_num, t.Stamp()*1000);
+	// visualize segment image
+	ConvertSegmentImage2Mat(segmentMat, img.cols, img.rows);
+	imshow("segmentimage", segmentMat);
+	waitKey(0);
 
 	//////////////////////////////////////////////////////////////////////////
 	// compute features for each superpixel
@@ -419,6 +424,7 @@ int SalientRegionDetector::RunMultiSlidingWindow()
 
 	int win_size_count = 0;
 	// loop every sliding window scale
+	#pragma omp parallel for
 	for(int step = 0; step < g_win_para.areas.size(); step++)
 	{
 		const float curArea = imgArea * g_win_para.areas[step];
@@ -693,3 +699,26 @@ bool SalientRegionDetector::read_para(int argc, _TCHAR* argv[])
 	return true;
 }
 
+
+void SalientRegionDetector::ConvertSegmentImage2Mat(Mat &segmentMat, int width, int height)
+{
+	if(width*height*3 != segmentedImg.size())
+	{
+		cerr<<"Segmentation image is not in correct format."<<endl;
+		return;
+	}
+
+	segmentMat.create(height, width, CV_8UC3);
+	for(int y=0; y<height; y++)
+	{
+		for(int x=0; x<width; x++)
+		{
+			Vec3b val;
+			val.val[0] = segmentedImg[y*width*3+3*x];
+			val.val[1] = segmentedImg[y*width*3+3*x+1];
+			val.val[2] = segmentedImg[y*width*3+3*x+2];
+			segmentMat.at<Vec3b>(y,x) = val;
+		}
+	}
+
+}

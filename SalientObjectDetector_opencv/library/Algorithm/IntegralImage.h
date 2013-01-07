@@ -76,7 +76,7 @@ public:
 	//template<class Rectangle>
 	AccumulationType Sum(const Rect& rect) const	
 	{	return Sum(rect.x, rect.y, rect.x + rect.width, rect.y + rect.height);	}
-
+	
 	template<class PixelFunc, class ImageType>
 	void Compute(const ImageType& img, const PixelFunc& fun)
 	{

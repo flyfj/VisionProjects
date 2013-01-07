@@ -17,7 +17,7 @@ struct DetectionParams
 	double segThresholdK;	// segmentation threshold for graph-based method
 	double segMinArea;	//	minimum segment area
 
-	int slidingStep;
+	int slidingStep;	// 0: use incremental update; 1: use integral image
 
 	float nmsTh;		// used in non maximum suppression
 	int useMultiNMS;		// sign: use multiple nms values
@@ -33,7 +33,7 @@ struct DetectionParams
 
 	// init
 	DetectionParams() : downSampleFactor(300), useBGMap(0), saveSegmap(0),  
-		segSigma(0.5f), segThresholdK(200), segMinArea(100), slidingStep(0),
+		segSigma(0.5f), segThresholdK(200), segMinArea(100), slidingStep(1),
 		useMultiNMS(0), nmsTh(0.6f), nms_min(0.6f), nms_max(0.6f), nms_step(1), 
 		saliencyThre(0.08f), bestN_drawn(5) {}
 };
@@ -155,6 +155,8 @@ public:
 
 private:
 	void Clear();
+
+	void ConvertSegmentImage2Mat(Mat &segmentMat, int width, int height);
 
 	//void ComputeBGMap(const BitmapData& img);
 

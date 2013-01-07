@@ -114,6 +114,7 @@ struct SegSuperPixelComposeFeature
 	Point2f centroid;
 	Rect box;	// bounding box
 	IntegralImageFloat area_integral_image;
+	Mat cv_area_integral_image;
 	vector<int> mask;	// mask data (same size as box)
 
 #ifdef RECORD_AUXILIARY_INFO
@@ -121,8 +122,29 @@ struct SegSuperPixelComposeFeature
 #endif
 	
 	// create mask integral
+	/*void CreateAreaIntegral(const Mat& seg_index_map, unsigned int id)
+	{
+		cv_area_integral_image.create(box.height, box.width, CV_32F);
+		Mat mask_img(box.height, box.width, CV_32S);
+		mask_img.setTo(0);
+		mask.resize(box.width*box.height, 0);
+		for(int y=box.y; y<box.br().y; y++)
+		{
+			for(int x=box.x; x<box.br().x; x++)
+			{
+				if( seg_index_map.at<int>(y,x) == id )
+				{
+					mask_img.at<int>(y-box.y, x-box.x) = 1;
+					mask[(y-box.y)*box.width+(x-box.x)] = 1;
+				}
+			}
+		}
+
+		integral(mask_img, cv_area_integral_image);
+	}*/
 	void CreateAreaIntegral(const ImageUIntSimple& seg_index_map, unsigned int id)
 	{
+		cv_area_integral_image.create(box.height, box.width, CV_32F);
 		ImageUIntSimple mask_img(box.width, box.height);
 		mask_img.FillPixels(0);
 		mask.resize(box.width*box.height, 0);
@@ -149,6 +171,11 @@ struct SegSuperPixelComposeFeature
 			interRect.x -= box.x;
 			interRect.y -= box.y;
 			return area_integral_image.Sum(interRect);
+			/*float area = cv_area_integral_image.at<float>(interRect.br()) \
+				- cv_area_integral_image.at<float>(interRect.br().y, interRect.x) \
+				- cv_area_integral_image.at<float>(interRect.y, interRect.br().x) \
+				+ cv_area_integral_image.at<float>(interRect.tl());
+			return area;*/
 		}
 		else return 0;
 	}
@@ -214,7 +241,7 @@ public:
 	float Compose(const Rect& win);
 	
 	// compute composition costs of all windows	in compose_cost_map		
-	void ComposeAll(const int win_width, const int win_height, const bool use_ehsw = true);
+	void ComposeAll(const int win_width, const int win_height, const bool use_ehsw = false);
 
 protected:
 	void Clear();  // release internal buffers
