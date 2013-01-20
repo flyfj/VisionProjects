@@ -171,7 +171,7 @@ int main()
 	resize(old_img, img, Size(old_img.cols/2, old_img.rows/2));
 
 	Mat dimg(img.rows, img.cols, CV_32FC3);
-	img.convertTo(dimg, dimg.depth());
+	img.convertTo(dimg, dimg.type());
 	//split to 3 channels
 	vector<Mat> channels(3);
 	for(int i=0; i<3; i++)
@@ -286,13 +286,15 @@ int main()
 	merge(channels, dimg);
 	//cvConvertScale(dimg, dimg, 255.0f);
 	Mat result = img.clone();
-	dimg.convertTo(result, result.depth());
+	dimg.convertTo(result, result.type());
 	
 	imshow("win", img);
 	imshow("res", result);
 	waitKey(10);
 
 	Mat filterimg = img.clone();
+	cout<<result.depth()<<" "<<filterimg.depth()<<endl;
+	cout<<result.channels()<<" "<<filterimg.channels()<<endl;
 	bilateralFilter ( result, filterimg, 11, 2*11, 11/2 );
 	//blur(result, result, Size(3,3));
 	imshow("bi", filterimg);
