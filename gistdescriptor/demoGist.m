@@ -1,6 +1,6 @@
 % EXAMPLE 1
 % Load image
-img1 = imread('demo1.jpg');
+img1 = imread('phone.jpg');
 
 % Parameters:
 clear param
@@ -21,6 +21,8 @@ title('Input image')
 subplot(122)
 showGist(gist1, param)
 title('Descriptor')
+
+return;
 
 
 % EXAMPLE 2
