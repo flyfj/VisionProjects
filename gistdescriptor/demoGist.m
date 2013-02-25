@@ -1,6 +1,6 @@
 % EXAMPLE 1
 % Load image
-img1 = imread('phone.jpg');
+img1 = imread('zappos0006834.jpg');
 
 % Parameters:
 clear param
@@ -13,6 +13,8 @@ param.fc_prefilt = 4;
 % output energies
 [gist1, param] = LMgist(img1, '', param);
 
+
+
 % Visualization
 figure
 subplot(121)
@@ -22,12 +24,12 @@ subplot(122)
 showGist(gist1, param)
 title('Descriptor')
 
-return;
+%return;
 
 
 % EXAMPLE 2
 % Load image (this image is not square)
-img2 = imread('demo2.jpg');
+img2 = imread('zappos0006835.jpg');
 
 % Parameters:
 clear param 
@@ -51,6 +53,9 @@ title('Input image')
 subplot(122)
 showGist(gist2, param)
 title('Descriptor')
+
+pause
+close all
 
 
 
