@@ -12,6 +12,7 @@ if length(M) == 1
     M = [M(1) M(1)];
 end
 
+% scale to max size
 scaling = max([M(1)/size(img,1) M(2)/size(img,2)]);
 
 %scaling = M/min([size(img,1) size(img,2)]);
@@ -21,6 +22,7 @@ img = imresize(img, newsize, METHOD);
 
 [nr nc cc] = size(img);
 
+% start position
 sr = floor((nr-M(1))/2);
 sc = floor((nc-M(2))/2);
 

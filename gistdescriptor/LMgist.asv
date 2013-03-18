@@ -64,15 +64,15 @@ if nargin<3
     param.fc_prefilt = 4;
     param.G = createGabor(param.orientationsPerScale, param.imageSize+2*param.boundaryExtension);
 else
-    % Precompute filter transfert functions (only need to do this once, unless
-    % image size is changes):
     if ~isfield(param, 'G')
         param.G = createGabor(param.orientationsPerScale, param.imageSize+2*param.boundaryExtension);
     end
 end
 
-
+% Precompute filter transfert functions (only need to do this once, unless
+% image size is changes):
 Nfeatures = size(param.G, 3) * param.numberBlocks^2;
+
 
 % Loop: Compute gist features for all scenes
 gist = zeros([Nscenes Nfeatures], 'single');
