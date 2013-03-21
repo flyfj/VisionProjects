@@ -2,7 +2,7 @@
 grid_num = 0;
 feat_dim = 0;
 
-fid = fopen('E:\spm.txt');
+fid = fopen('spm0.txt');
 A = fscanf(fid, ['%d' '%d'], 2);
 grid_num = A(1,1);
 feat_dim = A(2,1);
