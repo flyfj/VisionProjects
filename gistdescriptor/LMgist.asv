@@ -227,12 +227,12 @@ img = padarray(img, [be be], 'symmetric');
 
 img = single(fft2(img)); 
 k=0;
-for n = 1:Nfilters % do each filtering for all blocks 16
+for n = 1:Nfilters
     ig = abs(ifft2(img.*repmat(G(:,:,n), [1 1 N]))); % use nth filter to convolute with image
     ig = ig(be+1:ny-be, be+1:nx-be, :); % crop original region
     
-    v = downN(ig, w);   % compute average value for each block; average response for current orientation feature
-    g(k+1:k+W,:) = reshape(v, [W N]);   % concatenate filtered blocks
+    v = downN(ig, w);   
+    g(k+1:k+W,:) = reshape(v, [W N]);
     k = k + W;
     drawnow
 end

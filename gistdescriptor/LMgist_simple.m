@@ -1,4 +1,4 @@
-function [gist, param] = LMgist(D, HOMEIMAGES, param, HOMEGIST)
+function [gist, param] = LMgist_simple(D, HOMEIMAGES, param, HOMEGIST)
 %
 % [gist, param] = LMgist(D, HOMEIMAGES, param);
 % [gist, param] = LMgist(filename, HOMEIMAGES, param);
@@ -20,31 +20,6 @@ function [gist, param] = LMgist(D, HOMEIMAGES, param, HOMEGIST)
 % Aude Oliva, Antonio Torralba
 % International Journal of Computer Vision, Vol. 42(3): 145-175, 2001.
 
-if nargin==4
-    precomputed = 1;
-    % get list of folders and create non-existing ones
-    %listoffolders = {D(:).annotation.folder};
-
-    %for i = 1:length(D);
-    %    f{i} = D(i).annotation.folder;
-    %end
-    %[categories,b,class] = unique(f);
-else
-    precomputed = 0;
-    HOMEGIST = '';
-end
-
-% select type of input
-if isstruct(D)
-    % [gist, param] = LMgist(D, HOMEIMAGES, param);
-    Nscenes = length(D);
-    typeD = 1;
-end
-if iscell(D)
-    % [gist, param] = LMgist(filename, HOMEIMAGES, param);
-    Nscenes = length(D);
-    typeD = 2;
-end
 if isnumeric(D)
     % [gist, param] = LMgist(img, HOMEIMAGES, param);
     Nscenes = size(D,4);
@@ -80,34 +55,11 @@ for n = 1:Nscenes
     g = [];
     todo = 1;
     
-    % if gist has already been computed, just read the file
-    if precomputed==1
-        filegist = fullfile(HOMEGIST, D(n).annotation.folder, [D(n).annotation.filename(1:end-4) '.mat']);
-        if exist(filegist, 'file')
-            load(filegist, 'g');
-            todo = 0;
-        end
-    end
-    
     % otherwise compute gist
     if todo==1
         if Nscenes>1 disp([n Nscenes]); end
-
-        % load image
-        try
-            switch typeD
-                case 1
-                    img = LMimread(D, n, HOMEIMAGES);
-                case 2
-                    img = imread(fullfile(HOMEIMAGES, D{n}));
-                case 3
-                    img = D(:,:,:,n);
-            end
-        catch
-            disp(D(n).annotation.folder)
-            disp(D(n).annotation.filename)
-            rethrow(lasterror)
-        end
+        
+        img = D(:,:,:,n);
         
         % convert to gray scale
         img = single(mean(img,3));
@@ -119,11 +71,6 @@ for n = 1:Nscenes
         % scale intensities to be in the range [0 255]. min->0, max->255
         img = img-min(img(:));
         img = 255*img/max(img(:));
-        
-        if Nscenes>1
-            imshow(uint8(img))
-            title(n)
-        end
 
         % prefiltering: local contrast scaling
         output = prefilt(img, param.fc_prefilt);
@@ -131,58 +78,12 @@ for n = 1:Nscenes
         % get gist:
         g = gistGabor(output, param);
         
-        % save gist if a HOMEGIST file is provided
-        if precomputed
-            mkdir(fullfile(HOMEGIST, D(n).annotation.folder))
-            save (filegist, 'g')
-        end
     end
     
     gist(n,:) = g;
     drawnow
 end
 
-
-function output = prefilt(img, fc)
-% ima = prefilt(img, fc);
-% fc  = 4 (default)
-% 
-% Input images are double in the range [0, 255];
-% You can also input a block of images [ncols nrows 3 Nimages]
-%
-% For color images, normalization is done by dividing by the local
-% luminance variance.
-
-if nargin == 1
-    fc = 4; % 4 cycles/image
-end
-
-w = 5;
-s1 = fc/sqrt(log(2));
-
-% Pad images to reduce boundary artifacts
-img = log(img+1);
-img = padarray(img, [w w], 'symmetric');
-[sn, sm, c, N] = size(img);
-n = max([sn sm]);
-n = n + mod(n,2);
-img = padarray(img, [n-sn n-sm], 'symmetric','post');
-
-% Filter
-[fx, fy] = meshgrid(-n/2:n/2-1);
-gf = fftshift(exp(-(fx.^2+fy.^2)/(s1^2)));
-gf = repmat(gf, [1 1 c N]);
-
-% Whitening
-output = img - real(ifft2(fft2(img).*gf));
-clear img
-
-% Local contrast normalization
-localstd = repmat(sqrt(abs(ifft2(fft2(mean(output,3).^2).*gf(:,:,1,:)))), [1 1 c 1]); 
-output = output./(.2+localstd);
-
-% Crop output to have same size as the input
-output = output(w+1:sn-w, w+1:sm-w,:,:);
 
 
 
@@ -235,12 +136,6 @@ for n = 1:Nfilters % do each filtering for all blocks 16
     g(k+1:k+W,:) = reshape(v, [W N]);   % concatenate filtered blocks
     k = k + W;
     drawnow
-end
-
-if c == 3
-    % If the input was a color image, then reshape 'g' so that one column
-    % is one images output:
-    g = reshape(g, [size(g,1)*3 size(g,2)/3]);
 end
 
 
