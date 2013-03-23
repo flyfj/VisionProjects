@@ -162,11 +162,14 @@ s1 = fc/sqrt(log(2));
 
 % Pad images to reduce boundary artifacts
 img = log(img+1);
-img = padarray(img, [w w], 'symmetric');
-[sn, sm, c, N] = size(img);
-n = max([sn sm]);
-n = n + mod(n,2);
-img = padarray(img, [n-sn n-sm], 'symmetric','post');
+n = size(img, 1);
+c = 1;
+N = 1;
+% img = padarray(img, [w w], 'symmetric');
+% [sn, sm, c, N] = size(img);
+% n = max([sn sm]);
+% n = n + mod(n,2);
+% img = padarray(img, [n-sn n-sm], 'symmetric','post');
 
 % Filter
 [fx, fy] = meshgrid(-n/2:n/2-1);
@@ -182,7 +185,7 @@ localstd = repmat(sqrt(abs(ifft2(fft2(mean(output,3).^2).*gf(:,:,1,:)))), [1 1 c
 output = output./(.2+localstd);
 
 % Crop output to have same size as the input
-output = output(w+1:sn-w, w+1:sm-w,:,:);
+%output = output(w+1:sn-w, w+1:sm-w,:,:);
 
 
 

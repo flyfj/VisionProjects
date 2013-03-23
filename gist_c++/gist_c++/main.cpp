@@ -123,7 +123,7 @@ void Meshgrid(float xmin, float xmax, float ymin, float ymax, Mat& fx, Mat& fy)
 // ok
 void CreateGabor(const vector<int>& or, int n, vector<Mat>& G)
 {
-	ofstream out("debug.txt");
+	//ofstream out("debug.txt");
 
 	int Nscales = or.size();
 	int Nfilters = 0;
@@ -202,9 +202,61 @@ void downN(Mat& m, int w, Mat& resv)
 		}
 }
 
+void prefilt(const Mat& img, int fc, Mat& output)
+{
+	assert(img.channels() == 1 && img.rows == img.cols);
+	
+	ofstream out("debug.txt");
+
+	int w = 5;
+	float s1 = (float)fc / sqrt(log(2.0));
+
+	// Pad images to reduce boundary artifacts (ignore now)
+	Mat img2;
+	log(img+1, img2);
+
+	float n = img.rows;
+
+	Mat img3 = img2.clone();
+	//copyMakeBorder(img2, img3, w, w, w, w, BORDER_REFLECT);
+
+	// Filter: ok
+	Mat fx, fy;
+	Meshgrid(-n/2, n/2-1, -n/2, n/2-1, fx, fy);
+	Mat gf = -(fx.mul(fx) + fy.mul(fy)) / (s1*s1);
+	exp(gf, gf);
+	ShiftDFT(gf, gf);
+
+	// Whitening
+	vector<Mat> img3_complex;
+	dft(img3, output, DFT_COMPLEX_OUTPUT);
+	split(output, img3_complex);
+	img3_complex[0] = img3_complex[0].mul(gf);
+	img3_complex[1] = img3_complex[1].mul(gf);
+	merge(img3_complex, output);
+	idft(output, output, DFT_COMPLEX_OUTPUT);
+	split(output, img3_complex);
+	output = img3 - img3_complex[0];
+
+	// Local contrast normalization
+	Mat localstd;
+	dft(output.mul(output), localstd, DFT_COMPLEX_OUTPUT);
+	split(localstd, img3_complex);
+	img3_complex[0] = img3_complex[0].mul(gf);
+	img3_complex[1] = img3_complex[1].mul(gf);
+	merge(img3_complex, localstd);
+	idft(localstd, localstd);
+	split(localstd, img3_complex);
+	magnitude(img3_complex[0], img3_complex[1], localstd);
+	sqrt(localstd, localstd);
+	output = output / (0.2+localstd);
+}
+
 void gistGabor(const Mat& img, GistParams& params, Mat& gist)
 {
 	assert(img.channels() == 1);
+
+	ofstream out("debug.txt");
 
 	int w = params.numberBlocks;
 	vector<Mat>& G = params.G;
@@ -221,14 +273,13 @@ void gistGabor(const Mat& img, GistParams& params, Mat& gist)
 	gist.setTo(0);
 	
 	Mat img2;
-	copyMakeBorder(img, img, be, be, be, be, BORDER_REFLECT);
-	dft(img, img2, DFT_COMPLEX_OUTPUT);
+	copyMakeBorder(img, img2, be, be, be, be, BORDER_REFLECT);
+	dft(img2, img2, DFT_COMPLEX_OUTPUT);
 
 	vector<Mat> img2_complex;	// split channels
 	split(img2, img2_complex);
 
 	cout<<img2_complex[0].channels()<<endl;
-
 	cout<<img2.depth()<<endl;
 	cout<<img2.channels()<<endl;
 	
@@ -244,10 +295,15 @@ void gistGabor(const Mat& img, GistParams& params, Mat& gist)
 		split(ig, complex_img);
 		magnitude(complex_img[0], complex_img[1], ig); // use nth filter to convolute with image
 		Mat roi(ig, cv::Rect(be, be, nx, ny));	// crop original region
+		//out<<roi<<endl;
 		Mat v;
 		downN(roi, w, v);	// compute average value for each block; average response for current orientation feature
-		gist.colRange(k, k+W) = v;	// concatenate filtered blocks
-		k = k + W;
+		//out<<v<<endl;
+		// concatenate filtered blocks
+		for(int id=k; id<k+W; id++)
+			gist.at<float>(id, 0) = v.at<float>(id-k, 0);	
+		//out<<gist<<endl;
+		k += W;
 	}
 
 }
@@ -264,7 +320,7 @@ bool ComputeGistForImage(const Mat& img, GistParams& params, Mat& gist)
 	gray.convertTo(gray_img, CV_8U);
 
 	imshow("show", gray_img);
-	waitKey(0);
+	waitKey(10);
 
     // resize and crop image to make it square
 	Mat gray_rz(params.imageSize.height, params.imageSize.width, CV_32F);
@@ -273,14 +329,17 @@ bool ComputeGistForImage(const Mat& img, GistParams& params, Mat& gist)
     // scale intensities to be in the range [0 255]. min->0, max->255
 	normalize(gray_rz, gray_rz, 255, 0, CV_MINMAX);
 
-	imshow("show", gray_rz);
-	waitKey(0);
+	Mat disp;
+	gray_rz.convertTo(disp, CV_8U);
+	imshow("show", disp);
+	waitKey(10);
 
-    // prefiltering: local contrast scaling
-    //output = prefilt(img, param.fc_prefilt);
+	// prefiltering: local contrast scaling
+	Mat output;
+	prefilt(gray_rz, params.fc_prefilt, output);
 
     // get gist
-	gistGabor(gray_rz, params, gist);
+	gistGabor(output, params, gist);
 
 	return true;
 }
@@ -378,6 +437,10 @@ int main()
 
 	cout<<(getTickCount()-start_t) / getTickFrequency()<<"s"<<endl;
 
+	ofstream out("gist.txt");
+	out<<gist<<endl;
+
+	getchar();
 	return 0;
 
 	//parameters
