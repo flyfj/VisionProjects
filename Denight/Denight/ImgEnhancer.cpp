@@ -9,6 +9,8 @@ ImgEnhancer::ImgEnhancer(void)
 
 	alpha = 125, beta = 46;
 	G = 192, b = -30;
+
+	ifInit = false;
 }
 
 
@@ -176,7 +178,11 @@ bool ImgEnhancer::GenerateGaussianKernels(int imgw, int imgh)
 
 bool ImgEnhancer::Init(const Mat& img)
 {
-	return GenerateGaussianKernels(img.cols, img.rows);
+	GenerateGaussianKernels(img.cols, img.rows);
+	
+	ifInit = true;
+
+	return true;
 }
 
 bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)

@@ -46,6 +46,8 @@ public:
 	ImgEnhancer(void);
 	~ImgEnhancer(void);
 
+	bool ifInit;
+
 	bool Init(const Mat& img);
 
 	bool MSRCR(const Mat& img, Mat& output);
