@@ -1,23 +1,23 @@
-//////////////////////////////////////////////////////////////////////////
-//  Image denight
-//	'A multiscale retinex for bridging the gap between color images and human observation of scenes'
-//	fengjie@pku.cis
-//	2009-11-3
-//////////////////////////////////////////////////////////////////////////
-
-#include <opencv2\opencv.hpp>
 #include "ImgEnhancer.h"
-#include <cmath>
-#include <iostream>
-#include <fstream>
-using namespace std;
-using namespace cv;
 
 
-//////////////////////////////////////////////////////////////////////////
-//	shift
-//////////////////////////////////////////////////////////////////////////
-bool ShiftDFT(Mat& src_arr, Mat& dst_arr )
+ImgEnhancer::ImgEnhancer(void)
+{
+	c[0] = 80;
+	c[1] = 120;
+	c[2] = 250;	//scale parameters
+
+	alpha = 125, beta = 46;
+	G = 192, b = -30;
+}
+
+
+ImgEnhancer::~ImgEnhancer(void)
+{
+}
+
+
+bool ImgEnhancer::ShiftDFT(Mat& src_arr, Mat& dst_arr)
 {
 	Mat tmp;
 	Mat q1, q2, q3, q4;
@@ -76,12 +76,11 @@ bool ShiftDFT(Mat& src_arr, Mat& dst_arr )
 	return true;
 }
 
-
 //////////////////////////////////////////////////////////////////////////
 //	do convolution in Frequency domain
 //	@return		final image after convolution
 //////////////////////////////////////////////////////////////////////////
-bool cvFFTConvolution(const Mat& channel, const Mat& kernel, Mat& conv)
+bool ImgEnhancer::cvFFTConvolution(const Mat& channel, const Mat& kernel, Mat& conv)
 {
 	//create complex image and kernel
 	//////////////////////////////////////////////////////////////////////////
@@ -103,7 +102,7 @@ bool cvFFTConvolution(const Mat& channel, const Mat& kernel, Mat& conv)
 	//////////////////////////////////////////////////////////////////////////
 	/*int dft_M = getOptimalDFTSize(channel.rows*2-1);
 	int dft_N = getOptimalDFTSize(channel.cols*2-1);*/
-	//Mat& dft_A = complexImg;
+
 	Mat dft_A(channel.rows, channel.cols, CV_32FC2);
 	dft_A.setTo(0);
 	Mat dft_B(kernel.rows, kernel.cols, CV_32FC2);
@@ -112,20 +111,19 @@ bool cvFFTConvolution(const Mat& channel, const Mat& kernel, Mat& conv)
 	//////////////////////////////////////////////////////////////////////////
 	// do dft for image
 	//////////////////////////////////////////////////////////////////////////
-	/*Mat tmp = dft_A(Rect(0, 0, channel.cols, channel.rows));
-	complexImg.copyTo(tmp);*/
+	Mat tmp = dft_A(Rect(0, 0, channel.cols, channel.rows));
+	complexImg.copyTo(tmp);
 
-	//dft(dft_A, dft_A, CV_DXT_FORWARD);
-
+	dft(dft_A, dft_A, CV_DXT_FORWARD);
 
 	//////////////////////////////////////////////////////////////////////////
 	// do dft for kernel
 	//////////////////////////////////////////////////////////////////////////
-	Mat tmp = dft_B(Rect(0, 0, kernel.cols, kernel.rows));
-	//complexKernel.copyTo(tmp);
+	tmp = dft_B(Rect(0, 0, kernel.cols, kernel.rows));
+	complexKernel.copyTo(tmp);
 
 	//do dft
-	//dft(dft_B, dft_B, CV_DXT_FORWARD);
+	dft(dft_B, dft_B, CV_DXT_FORWARD);
 
 	//shift kernel to center
 	ShiftDFT(dft_B, dft_B);
@@ -133,10 +131,10 @@ bool cvFFTConvolution(const Mat& channel, const Mat& kernel, Mat& conv)
 	//////////////////////////////////////////////////////////////////////////
 	//	do convolution
 	//////////////////////////////////////////////////////////////////////////
-	//mulSpectrums(dft_A, dft_B, dft_A, CV_DXT_MUL_CONJ);
+	mulSpectrums(dft_A, dft_B, dft_A, CV_DXT_MUL_CONJ);
 
 	//do inverse dft
-	//dft(dft_A, dft_A, CV_DXT_INV_SCALE, channel.rows);
+	dft(dft_A, dft_A, CV_DXT_INV_SCALE, channel.rows);
 	//idft(dft_A, dft_A);
 
 	split(dft_A, vec_mat);
@@ -145,79 +143,56 @@ bool cvFFTConvolution(const Mat& channel, const Mat& kernel, Mat& conv)
 	vec_mat[0] += vec_mat[1];
 	pow(vec_mat[0], 0.5, conv);
 
-	//cout<<conv<<endl;
+	return true;
+}
+
+bool ImgEnhancer::GenerateGaussianKernels(int imgw, int imgh)
+{
+	gaussKernels.resize(3);
+	for(int i=0; i<3; i++)
+	{
+		gaussKernels[i].create(imgh, imgw, CV_32F);
+		Point3d center((double)imgw/2, (double)imgh/2, 0.0f);
+		double sum = 0;
+		for(int j=0; j<gaussKernels[i].rows; j++)
+		{
+			double y = j - center.y;
+			for(int k=0; k<gaussKernels[i].cols; k++)
+			{
+				double x = k - center.x;
+				double val = exp(-(x*x+y*y)/(2*c[i]*c[i]));
+				gaussKernels[i].at<float>(j, k) = val;
+				sum += val;
+			}
+		}
+		
+		//normalize
+		gaussKernels[i] /= sum;
+		//gaussKernels[i].convertTo(gaussKernels[i], gaussKernels[i].depth(), sum);
+	}
 
 	return true;
 }
 
-
-
-
-int main()
+bool ImgEnhancer::Init(const Mat& img)
 {
-	//parameters
-	int c[3] = {80, 120, 250};	//scale parameters
-	float alpha = 125, beta = 46;
-	float G = 192, b = -30;
+	return GenerateGaussianKernels(img.cols, img.rows);
+}
 
-	//obtain image
-	Mat old_img = imread("normal.jpeg");
-	Mat img;
-	resize(old_img, img, Size(old_img.cols, old_img.rows));
+bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)
+{
+	if(img.channels() != 3)
+		return false;
 
-	cout<<img.cols<<" "<<img.rows<<endl;
-
-	double start_t = GetTickCount();
-
-	ImgEnhancer enhancer;
-	enhancer.Init(img);
-	Mat output;
-	enhancer.MSRCR(img, output);
-
-	cout<<(GetTickCount() - start_t) / getTickFrequency()<<"s"<<endl;
-
-	imshow("res", output);
-	waitKey(0);
-
-	return 0;
-
+	// resize
+	/*Mat new_img;
+	resize(img, new_img, Size(img.cols, img.rows));*/
 
 	Mat dimg(img.rows, img.cols, CV_32FC3);
 	img.convertTo(dimg, dimg.type());
 	//split to 3 channels
 	vector<Mat> channels(3);
 	split(dimg, channels);	// bgr
-
-
-	//////////////////////////////////////////////////////////////////////////
-	// generate surround function for 3 scales corresponds different 
-	// smooth kernel: std = sqrt(2)/2*c (OK)
-	//////////////////////////////////////////////////////////////////////////
-	vector<Mat> gaussKernels(3);
-	for(int i=0; i<3; i++)
-	{
-		gaussKernels[i].create(dimg.rows, dimg.cols, CV_32F);
-		Point3d center((double)dimg.cols/2, (double)dimg.rows/2, 0.0f);
-		double sum = 0;
-		for(int j=0; j<gaussKernels[i].rows; j++)
-		{
-			double y = j-center.y;
-			for(int k=0; k<gaussKernels[i].cols; k++)
-			{
-				double x = k-center.x;
-				double val = exp(-(x*x+y*y)/(2*c[i]*c[i]));
-				gaussKernels[i].at<float>(j, k) = val;
-				sum += val;
-			}
-		}
-		sum = 1.0f/sum;
-		
-		//normalize
-		gaussKernels[i] *= sum;
-		//gaussKernels[i].convertTo(gaussKernels[i], gaussKernels[i].depth(), sum);
-	}
-
-	
 
 	//////////////////////////////////////////////////////////////////////////
 	// MSRCR
@@ -256,10 +231,11 @@ int main()
 		//process each scale
 		for(int j=0; j<3; j++)
 		{
-			/*cvFFTConvolution(channels[i], gaussKernels[j], scales[j]);
-			cout<<scales[j].at<float>(0,0)<<endl;*/
-			scales[j].setTo(1);
+			// TODO: not have any effect
+			// cvFFTConvolution(channels[i], gaussKernels[j], scales[j]);
 			//scales[j] += 1.0;
+
+			scales[j].setTo(1);
 			log(scales[j], scales[j]);
 			scales[j] = logimg1 - scales[j];
 		}
@@ -290,7 +266,6 @@ int main()
 					channels[i].at<float>(k, kk) = 255;
 			}
 		}
-		
 	}
 
 	//merge into single image
@@ -299,28 +274,8 @@ int main()
 	Mat result = img.clone();
 	dimg.convertTo(result, result.type());
 
-	cout<<(GetTickCount() - start_t) / getTickFrequency()<<"s"<<endl;
-	
-	imshow("original", img);
-	imshow("res", result);
-	waitKey(10);
+	output = img.clone();
+	bilateralFilter ( result, output, 11, 2*11, 11/2 );
 
-	Mat filterimg = img.clone();
-	cout<<result.depth()<<" "<<filterimg.depth()<<endl;
-	cout<<result.channels()<<" "<<filterimg.channels()<<endl;
-	bilateralFilter ( result, filterimg, 11, 2*11, 11/2 );
-	//blur(result, result, Size(3,3));
-	imshow("bi", filterimg);
-	waitKey(10);
-	
-	medianBlur(result, filterimg, 3);
-	imshow("Median", filterimg);
-
-	cout<<(GetTickCount() - start_t) / getTickFrequency()<<"s"<<endl;
-
-	waitKey(0);
-
-	cvDestroyAllWindows();
-
-	return 0;
+	return true;
 }
