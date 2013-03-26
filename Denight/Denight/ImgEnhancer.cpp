@@ -191,11 +191,17 @@ bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)
 		return false;
 
 	// resize
-	/*Mat new_img;
-	resize(img, new_img, Size(img.cols, img.rows));*/
+	Mat new_img = img.clone();
+	//resize(img, new_img, Size(img.cols, img.rows));
 
-	Mat dimg(img.rows, img.cols, CV_32FC3);
-	img.convertTo(dimg, dimg.type());
+	// sharpening
+	Mat blur = img.clone();
+	cv::GaussianBlur(img, blur, cv::Size(0, 0), 3);
+	cv::addWeighted(img, 1.5, blur, -0.5, 0, new_img);
+	
+	// do processing
+	Mat dimg(new_img.rows, new_img.cols, CV_32FC3);
+	new_img.convertTo(dimg, dimg.type());
 	//split to 3 channels
 	vector<Mat> channels(3);
 	split(dimg, channels);	// bgr
@@ -205,9 +211,9 @@ bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)
 	//////////////////////////////////////////////////////////////////////////
 	vector<Mat> scales(3);
 	for(int i=0; i<3; i++)
-		scales[i].create(img.rows, img.cols, CV_32F);
+		scales[i].create(dimg.rows, dimg.cols, CV_32F);
 
-	Mat logimg1(img.rows, img.cols, CV_32F);
+	Mat logimg1(dimg.rows, dimg.cols, CV_32F);
 	Mat logimg2 = logimg1.clone();
 	
 	Mat channelSum = logimg1.clone();
@@ -282,6 +288,12 @@ bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)
 
 	output = img.clone();
 	bilateralFilter ( result, output, 11, 2*11, 11/2 );
+	imshow("bilateral", output);
+	
+	medianBlur(result, output, 3);
+	imshow("Median", output);
+
+	waitKey(0);
 
 	return true;
 }
