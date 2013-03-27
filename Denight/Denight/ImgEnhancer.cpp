@@ -3,9 +3,10 @@
 
 ImgEnhancer::ImgEnhancer(void)
 {
-	c[0] = 80;
-	c[1] = 120;
-	c[2] = 250;	//scale parameters
+	//scale parameters
+	c[0] = 15; //80;
+	c[1] = 80; //120;
+	c[2] = 250;	
 
 	alpha = 125, beta = 46;
 	G = 192, b = -30;

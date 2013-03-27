@@ -21,7 +21,7 @@ class ImgEnhancer
 private:
 	
 	// params
-	int c[3];
+	int c[3];	// Guassian kernel scale
 	float alpha;
 	float beta;
 	float G;
