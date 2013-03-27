@@ -44,7 +44,6 @@ private:
 
 public:
 	ImgEnhancer(void);
-	~ImgEnhancer(void);
 
 	bool ifInit;
 

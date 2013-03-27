@@ -24,7 +24,7 @@ int main()
 	float G = 192, b = -30;
 
 	//obtain image
-	Mat old_img = imread("normal.jpeg");
+	Mat old_img = imread("disks.png");
 	Mat img;
 	resize(old_img, img, Size(old_img.cols, old_img.rows));
 

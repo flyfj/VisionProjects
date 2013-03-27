@@ -5,18 +5,13 @@ ImgEnhancer::ImgEnhancer(void)
 {
 	//scale parameters
 	c[0] = 15; //80;
-	c[1] = 80; //120;
-	c[2] = 250;	
+	c[1] = 81; //120;
+	c[2] = 251;	
 
 	alpha = 125, beta = 46;
 	G = 192, b = -30;
 
 	ifInit = false;
-}
-
-
-ImgEnhancer::~ImgEnhancer(void)
-{
 }
 
 
@@ -163,7 +158,7 @@ bool ImgEnhancer::GenerateGaussianKernels(int imgw, int imgh)
 			for(int k=0; k<gaussKernels[i].cols; k++)
 			{
 				double x = k - center.x;
-				double val = exp(-(x*x+y*y)/(2*c[i]*c[i]));
+				double val = exp(-(x*x+y*y)/(c[i]*c[i]));
 				gaussKernels[i].at<float>(j, k) = val;
 				sum += val;
 			}
@@ -171,7 +166,6 @@ bool ImgEnhancer::GenerateGaussianKernels(int imgw, int imgh)
 		
 		//normalize
 		gaussKernels[i] /= sum;
-		//gaussKernels[i].convertTo(gaussKernels[i], gaussKernels[i].depth(), sum);
 	}
 
 	return true;
@@ -248,15 +242,17 @@ bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)
 			// cvFFTConvolution(channels[i], gaussKernels[j], scales[j]);
 			//scales[j] += 1.0;
 
+			// do gaussian kernel convolution
+			/*GaussianBlur(channels[i], scales[j], cv::Size(c[j], c[j]), 0, 0);
+			scales[j] += 1;*/
+			
 			scales[j].setTo(1);
 			log(scales[j], scales[j]);
 			scales[j] = logimg1 - scales[j];
 		}
 
 		//combine multiscale
-		//channels[i].setTo(0);
 		channels[i] = (scales[0] + scales[1] + scales[2]) / 3;
-		//channels[i] *= 1.0/3;
 		
 		//multiply CRC
 		channels[i] = colorrestore.mul(channels[i]);
@@ -289,7 +285,10 @@ bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)
 
 	output = img.clone();
 	bilateralFilter ( result, output, 11, 2*11, 11/2 );
-	imshow("bilateral", output);
+	imshow("bilateral1", output);
+	/*Mat back = output.clone();
+	bilateralFilter ( output, back, 11, 2*11, 11/2 );
+	imshow("bilateral2", back);*/
 	
 	medianBlur(result, output, 3);
 	imshow("Median", output);
