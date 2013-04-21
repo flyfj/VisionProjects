@@ -1,6 +1,6 @@
 
-imgdir = 'E:\GalaxyZoo\assets\zoo2\';
-outdir = 'I:\Zoo2_lbp\';
+imgdir = 'E:\GalaxyZoo\assets\zoo2_extra\';
+outdir = 'I:\Zoo2_extra_lbp\';
 
 imglist = dir([imgdir '*.jpg']);
 for i=1:size(imglist,1)
