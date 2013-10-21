@@ -22,12 +22,11 @@ cate_list = cate_list{1,1};
 savefile = [resdir 'test_gist.txt'];
     
 m = 10000;
+% Pre-allocate gist:
+Nfeatures = sum(param.orientationsPerScale)*param.numberBlocks^2;
+gist = zeros([m Nfeatures]); 
 
 for id=0:m-1
-
-    % Pre-allocate gist:
-    Nfeatures = sum(param.orientationsPerScale)*param.numberBlocks^2;
-    gist = zeros([m Nfeatures]); 
 
     % Load first image and compute gist:
     img = imread( [imgdir num2str(id) '.jpg'] );
