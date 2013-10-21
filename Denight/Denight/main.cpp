@@ -24,9 +24,12 @@ int main()
 	float G = 192, b = -30;
 
 	//obtain image
-	Mat old_img = imread("disks.png");
+	Mat old_img = imread("1.jpg");
+	if(old_img.empty())
+		return -1;
+
 	Mat img;
-	resize(old_img, img, Size(old_img.cols, old_img.rows));
+	resize(old_img, img, Size(400, 400));
 
 	imshow("old", img);
 

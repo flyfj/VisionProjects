@@ -6,7 +6,7 @@ ImgEnhancer::ImgEnhancer(void)
 	//scale parameters
 	c[0] = 15; //80;
 	c[1] = 81; //120;
-	c[2] = 251;	
+	c[2] = 251;
 
 	alpha = 125, beta = 46;
 	G = 192, b = -30;
@@ -285,12 +285,13 @@ bool ImgEnhancer::MSRCR(const Mat& img, Mat& output)
 
 	output = img.clone();
 	bilateralFilter ( result, output, 11, 2*11, 11/2 );
+	//bilateralFilter(output, result, 11, 2*11, 11/2);
 	imshow("bilateral1", output);
 	/*Mat back = output.clone();
 	bilateralFilter ( output, back, 11, 2*11, 11/2 );
 	imshow("bilateral2", back);*/
 	
-	medianBlur(result, output, 3);
+	medianBlur(output, output, 3);
 	imshow("Median", output);
 
 	waitKey(0);
