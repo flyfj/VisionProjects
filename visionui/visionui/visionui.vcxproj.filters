@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Features">
+      <UniqueIdentifier>{bc9d428b-96ac-4618-a143-ae2e75ad10b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Processors">
+      <UniqueIdentifier>{f4f80b74-800e-45d7-88f6-73c133041309}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Learners">
+      <UniqueIdentifier>{d0fd6fda-4447-4d6a-8976-88a25c634dbd}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="app.ico">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="visionui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AssemblyInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Features\DescriptorDictionaryGenerator.cpp">
+      <Filter>Features</Filter>
+    </ClCompile>
+    <ClCompile Include="Features\ImgDescriptorExtractor.cpp">
+      <Filter>Features</Filter>
+    </ClCompile>
+    <ClCompile Include="Features\ImgKeypointDescriptorExtractor.cpp">
+      <Filter>Features</Filter>
+    </ClCompile>
+    <ClCompile Include="Features\ImgKeypointDetector.cpp">
+      <Filter>Features</Filter>
+    </ClCompile>
+    <ClCompile Include="Processors\ClusteringTrees.cpp">
+      <Filter>Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="Processors\ObjCategorizer.cpp">
+      <Filter>Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="Processors\Searcher.cpp">
+      <Filter>Processors</Filter>
+    </ClCompile>
+    <ClCompile Include="MainEngine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Learners\jsvm.cpp">
+      <Filter>Learners</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SearchForm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Features\DescriptorDictionaryGenerator.h">
+      <Filter>Features</Filter>
+    </ClInclude>
+    <ClInclude Include="Features\ImgDescriptorExtractor.h">
+      <Filter>Features</Filter>
+    </ClInclude>
+    <ClInclude Include="Features\ImgKeypointDescriptorExtractor.h">
+      <Filter>Features</Filter>
+    </ClInclude>
+    <ClInclude Include="Features\ImgKeypointDetector.h">
+      <Filter>Features</Filter>
+    </ClInclude>
+    <ClInclude Include="Processors\ClusteringTrees.h">
+      <Filter>Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="Processors\ObjCategorizer.h">
+      <Filter>Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="Processors\Searcher.h">
+      <Filter>Processors</Filter>
+    </ClInclude>
+    <ClInclude Include="common_libs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Learners\jsvm.h">
+      <Filter>Learners</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="app.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
