@@ -74,7 +74,7 @@ public:
 	}
 
 private:
-	vector<BaseClass::iterator> iters;		// a vector of iterators pointing to list elements
+	vector<iterator> iters;		// a vector of iterators pointing to list elements
 };
 
 void test_array_hash_map();

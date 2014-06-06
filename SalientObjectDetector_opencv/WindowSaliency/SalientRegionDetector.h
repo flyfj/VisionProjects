@@ -17,7 +17,7 @@ struct DetectionParams
 	double segThresholdK;	// segmentation threshold for graph-based method
 	double segMinArea;	//	minimum segment area
 
-	int slidingStep;	// 0: use incremental update; 1: use integral image
+	int slidingStep;	// 0: use incremental update; 1: use integral image; >1: brute force
 
 	float nmsTh;		// used in non maximum suppression
 	int useMultiNMS;		// sign: use multiple nms values

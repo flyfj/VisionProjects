@@ -52,7 +52,7 @@ int main()
 	SalientRegionDetector detector;
 
 	// set params
-	string imgname = "D:\\Pictures\\030CE177.jpeg";
+	string imgname = "E:\\Images\\1_26_26640.jpg";
 		
 	// read image
 	Mat img = imread(imgname.c_str());
@@ -65,6 +65,9 @@ int main()
 	// resize image
 	Mat newImg(newSz, img.depth());
 	resize(img, newImg, Size(newImg.cols, newImg.rows));
+
+	imshow("input", img);
+	waitKey(10);
 
 	detector.Init(newImg);
 
