@@ -29,17 +29,23 @@ for i=1:length(cate_dirs)
             disp([num2str(k) ' img read.']);
         end
         [eig_vecs, obj_mean] = comp_obj_subspace(all_imgs);
-        % show mean
-        imshow(reshape(obj_mean, 50, 50)', []);
-        % show eigenvectors
-        close all
-        for m=1:20
-            subplot(1, 20, m)
-            eig_img = reshape(eig_vecs(m,:), 50, 50)';
-            imshow(eig_img, [])
-            hold on
-            pause
-        end
+        % save to data
+        db_obj.eig_vecs = eig_vecs;
+        db_obj.obj_mean = obj_mean;
+        db_obj.dir = [cate_name '\' cur_obj_dir];
+        save([cate_name '-' cur_obj_dir], 'db_obj');
+%         %show mean
+%         imshow(reshape(obj_mean, 50, 50)', []);
+%         %show eigenvectors
+%         close all
+%         for m=1:20
+%             subplot(1, 20, m)
+%             eig_img = reshape(eig_vecs(m,:), 50, 50)';
+%             imshow(eig_img, [])
+%             hold on
+%             pause
+%         end
+        disp(['finished ' cate_name '-' cur_obj_dir]);
     end
     
 end

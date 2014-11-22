@@ -6,7 +6,7 @@ obj_mean = mean(obj_imgs, 1);
 obj_imgs = obj_imgs - repmat(obj_mean, size(obj_imgs,1), 1);
 
 covmat = cov(obj_imgs);
-[eig_vecs, ~] = eig(covmat, size(obj_imgs,1));
+[eig_vecs, ~] = eigs(covmat, size(obj_imgs,1));
 eig_vecs = eig_vecs';
 
 end
