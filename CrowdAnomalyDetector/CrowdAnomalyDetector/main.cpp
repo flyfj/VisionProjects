@@ -16,7 +16,7 @@
 
 int main()
 {
-	string video_fn = "F:\\Crowd\\scene3.avi";
+	string video_fn = "F:\\Crowd\\scene1.avi";
 	
 	VideoEventDemo demo;
 	demo.RunVideo(video_fn);

@@ -22,13 +22,11 @@ void VideoEventDemo::RunVideo(string video_fn) {
 
 		frame_id++;
 		if (frame_id == 1) {
-			analyzer = make_shared<CrowdAnalyzer>(frame.cols, frame.rows, Point(5, 5));
+			analyzer = make_shared<CrowdAnalyzer>(frame.cols, frame.rows, Point(1, 1));
 			analyzer->verbose = true;
 		}
-		Mat frame_gray;
-		cvtColor(frame, frame_gray, CV_BGR2GRAY);
-		
-		analyzer->Process(frame_gray);
+
+		analyzer->Process(frame);
 		//putText(frame, string(str), Point(20, 20), CV_FONT_HERSHEY_PLAIN, 1.5, CV_RGB(0, 0, 255));
 		//cout << frame_id << " : " << prob << endl << endl;
 		Mat oimg;

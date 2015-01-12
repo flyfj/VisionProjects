@@ -15,6 +15,7 @@ float MotionAnalyzer::Predict(const Mat& feat)
 
 void MotionAnalyzer::Update(const Mat& feat) 
 {
+	samp_num++;
 	if (samp_num < TRAIN_SAMP_NUM) {
 		// get feature and wait
 		samps.push_back(feat);
@@ -31,7 +32,7 @@ void MotionAnalyzer::Update(const Mat& feat)
 }
 
 float MotionAnalyzer::Process(const Mat& feat) {
-	samp_num++;
+	//samp_num++;
 	// predict
 	float val = Predict(feat);
 	// update
@@ -40,6 +41,7 @@ float MotionAnalyzer::Process(const Mat& feat) {
 	return val;
 }
 
+//////////////////////////////////////////////////////////////////////////
 
 CrowdAnalyzer::CrowdAnalyzer(int imgw, int imgh, Point frame_grid)
 {
@@ -59,13 +61,21 @@ CrowdAnalyzer::CrowdAnalyzer(int imgw, int imgh, Point frame_grid)
 		
 }
 
+bool CrowdAnalyzer::ValidateFeat(const Mat& feat) {
+	if (!feat.empty() && feat.at<float>(0) > MIN_FLOW_MAG)
+		return true;
+	else
+		return false;
+}
+
 void CrowdAnalyzer::DrawFlowMap(const Mat& flow, const Mat& color_img, Mat& cflowmap, int step, const Scalar& color, bool toshow) {
 	cflowmap = color_img.clone();
+	float arrow_length = 3;
 	for (int y = 0; y < cflowmap.rows; y += step) {
 		for (int x = 0; x < cflowmap.cols; x += step)
 		{
 			const Point2f& fxy = flow.at<Point2f>(y, x);
-			line(cflowmap, Point(x, y), Point(cvRound(x + fxy.x), cvRound(y + fxy.y)),
+			line(cflowmap, Point(x, y), Point(cvRound(x + fxy.x*arrow_length), cvRound(y + fxy.y*arrow_length)),
 				color);
 			circle(cflowmap, Point(x, y), 2, color, -1);
 		}
@@ -75,62 +85,94 @@ void CrowdAnalyzer::DrawFlowMap(const Mat& flow, const Mat& color_img, Mat& cflo
 	waitKey(10);
 }
 
-void CrowdAnalyzer::ExtractCrowdFeature(const Mat& prev_frame_gray, const Mat& cur_frame_gray, vector<vector<Mat>>& feats) {
-
+void CrowdAnalyzer::ExtractCrowdFeature(Mat& prev_frame_color, Mat& cur_frame_color, vector<vector<Mat>>& feats) {
+	
+	// convert format
+	Mat prev_frame_gray, cur_frame_gray;
+	cvtColor(prev_frame_color, prev_frame_gray, CV_BGR2GRAY);
+	cvtColor(cur_frame_color, cur_frame_gray, CV_BGR2GRAY);
+	// frame differencing to find motion mask
+	Mat frame_diff = abs(prev_frame_gray - cur_frame_gray);
+	motion_mask = frame_diff >= 20;
 	// compute optical flow
 	Mat flow;
-	calcOpticalFlowFarneback(prev_frame_gray, cur_frame_gray, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
+	//calcOpticalFlowSF(prev_frame_color, cur_frame_color, flow, 3, 2, 4, 4.1, 25.5, 18, 55.0, 25.5, 0.35, 18, 55.0, 25.5, 10);
+	calcOpticalFlowFarneback(prev_frame_gray, cur_frame_gray, flow, 0.5, 3, 10, 5, 5, 1.2, 0);
+	// smooth flow map
+	medianBlur(flow, flow, 5);
 	if (verbose) {
 		Mat cflow, cimg;
-		cvtColor(cur_frame_gray, cimg, CV_GRAY2BGR);
+		cimg = cur_frame_color.clone();
 		DrawFlowMap(flow, cimg, cflow, 16, Scalar(0, 255, 0));
 	}
 
-	// use mean flow magnitude as feat
+	// use mean flow magnitude as feature
 	vector<Mat> flowxy;
 	split(flow, flowxy);
 	Mat flow_mag;
 	magnitude(flowxy[0], flowxy[1], flow_mag);
+	float max_val = 0;
+	float min_val = numeric_limits<float>::max();
 	feats.resize(grids.size());
 	for (size_t r = 0; r < grids.size(); r++) {
 		feats[r].resize(grids[r].size());
 		for (size_t c = 0; c < grids[r].size(); c++) {
 			feats[r][c] = Mat::zeros(1, 1, CV_32F);
-			Mat valid_pixels;
-			compare(flow_mag, MIN_FLOW_MAG, valid_pixels, CMP_GT);
-			feats[r][c].at<float>(0) = 
-				static_cast<float>(mean(flow_mag(grids[r][c].grid_box), valid_pixels(grids[r][c].grid_box)).val[0]);
+			// filter stationary pixels
+			motion_mask = flow_mag > MIN_FLOW_MAG;
+			float score = static_cast<float>(mean(flow_mag(grids[r][c].grid_box), motion_mask(grids[r][c].grid_box)).val[0]);
+			min_val = std::min(min_val, score);
+			max_val = std::max(max_val, score);
+			feats[r][c].at<float>(0) = score;
 		}
+	}
+	if (verbose) {
+		cout << min_val << " " << max_val << endl;
 	}
 }
 
-void CrowdAnalyzer::Process(const Mat& cur_frame_gray) {
+void CrowdAnalyzer::Process(Mat& cur_frame_color) {
 
 	// extract feature
 	samp_num++;
-	if (prev_frame_gray.empty()) {
-		cur_frame_gray.copyTo(prev_frame_gray);
+	cout << "sample number: " << samp_num << endl;
+	if (prev_frame_color.empty()) {
+		cur_frame_color.copyTo(prev_frame_color);
 		return;
 	}
 	vector<vector<Mat>> feats;
-	ExtractCrowdFeature(prev_frame_gray, cur_frame_gray, feats);
+	ExtractCrowdFeature(prev_frame_color, cur_frame_color, feats);
 
 	for (int r = 0; r < analyzers.size(); r++) {
 		for (int c = 0; c < analyzers[r].size(); c++) {
-			grids[r][c].score = analyzers[r][c].Process(feats[r][c]);
+			grids[r][c].score = 1;
+			if (ValidateFeat(feats[r][c])) {
+				grids[r][c].score = analyzers[r][c].Predict(feats[r][c]);
+				if (!analyzers[r][c].hasInit)
+					analyzers[r][c].Update(feats[r][c]);
+			}
 		}
 	}
-	
-	cur_frame_gray.copyTo(prev_frame_gray);
+
+	cur_frame_color.copyTo(prev_frame_color);
 }
 
 void CrowdAnalyzer::DrawDetectionFrame(const Mat& color_img, Mat& oimg) {
 	oimg = color_img.clone();
 	for (size_t r = 0; r < grids.size(); r++) {
 		for (size_t c = 0; c < grids[r].size(); c++) {
-			if (grids[r][c].score < ANOMALY_TH) {
-				rectangle(oimg, grids[r][c].grid_box, CV_RGB(255, 0, 0), 2);
+			if (analyzers[r][c].hasInit) {
+				rectangle(oimg, grids[r][c].grid_box, CV_RGB(0, 255, 0), 2);
+				if (grids[r][c].score < ANOMALY_TH) {
+					rectangle(oimg, grids[r][c].grid_box, CV_RGB(255, 0, 0), 2);
+					cout << "anomaly score: " << grids[r][c].score << endl;
+				}
 			}
 		}
 	}
+	if (!motion_mask.empty()) {
+		imshow("motion mask", motion_mask);
+		waitKey(10);
+	}
+
 }

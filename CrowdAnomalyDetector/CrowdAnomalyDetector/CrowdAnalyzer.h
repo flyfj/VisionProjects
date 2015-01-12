@@ -25,15 +25,15 @@ public:
 
 	float Process(const Mat& feat);
 
+	bool hasInit = false;
+
 private:
 	void Update(const Mat& feat);
 
 	float Predict(const Mat& feat);
 
 	int samp_num = 0;
-	bool hasInit = false;
-	const int TRAIN_SAMP_NUM = 50;
-
+	const int TRAIN_SAMP_NUM = 100;
 	Mat samps;
 	GaussDist1D analyzer;
 };
@@ -45,9 +45,9 @@ public:
 	CrowdAnalyzer() {}
 	CrowdAnalyzer(int imgw, int imgh, Point frame_grid);
 
-	void ExtractCrowdFeature(const Mat& prev_frame_gray, const Mat& cur_frame_gray, vector<vector<Mat>>& feats);
+	void ExtractCrowdFeature(Mat& prev_frame_color, Mat& cur_frame_color, vector<vector<Mat>>& feats);
 
-	void Process(const Mat& cur_frame_gray);
+	void Process(Mat& cur_frame_color);
 
 	void DrawFlowMap(const Mat& flow, const Mat& color_img, Mat& cflowmap, int step, const Scalar& color, bool toshow = true);
 	void DrawDetectionFrame(const Mat& color_img, Mat& oimg);
@@ -55,13 +55,16 @@ public:
 	bool verbose = false;
 
 private:
+	bool ValidateFeat(const Mat& feat);
+
 	int grid_x = 1;
 	int grid_y = 1;
 	int samp_num = 0;
-	const float ANOMALY_TH = 0.00001f;
-	const float MIN_FLOW_MAG = 0.01f;
+	const float ANOMALY_TH = 1e-10;
+	const float MIN_FLOW_MAG = 0.5f;
 
-	Mat prev_frame_gray;
+	Mat prev_frame_color;
+	Mat motion_mask;
 	vector<vector<FrameGrid>> grids;
 	vector<vector<MotionAnalyzer>> analyzers;
 
