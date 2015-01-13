@@ -165,12 +165,12 @@ void CrowdAnalyzer::DrawDetectionFrame(const Mat& color_img, Mat& oimg) {
 				rectangle(oimg, grids[r][c].grid_box, CV_RGB(0, 255, 0), 2);
 				if (grids[r][c].score < ANOMALY_TH) {
 					rectangle(oimg, grids[r][c].grid_box, CV_RGB(255, 0, 0), 2);
-					cout << "anomaly score: " << grids[r][c].score << endl;
+					if(verbose) cout << "anomaly score: " << grids[r][c].score << endl;
 				}
 			}
 		}
 	}
-	if (!motion_mask.empty()) {
+	if (verbose && !motion_mask.empty()) {
 		imshow("motion mask", motion_mask);
 		waitKey(10);
 	}

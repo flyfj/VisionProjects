@@ -23,7 +23,7 @@ void VideoEventDemo::RunVideo(string video_fn) {
 		frame_id++;
 		if (frame_id == 1) {
 			analyzer = make_shared<CrowdAnalyzer>(frame.cols, frame.rows, Point(1, 1));
-			analyzer->verbose = true;
+			analyzer->verbose = false;
 		}
 
 		analyzer->Process(frame);

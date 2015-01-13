@@ -14,9 +14,13 @@
 #pragma comment(lib, "opencv_video249.lib")
 #endif
 
-int main()
+int main(int argc, char* argv[])
 {
-	string video_fn = "F:\\Crowd\\scene1.avi";
+	if (argc != 2) {
+		cerr << "Usage: program.exe video_path." << endl;
+		return -1;
+	}
+	string video_fn(argv[1]);
 	
 	VideoEventDemo demo;
 	demo.RunVideo(video_fn);
