@@ -2,9 +2,9 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-MotionAnalyzer::MotionAnalyzer()
+MotionAnalyzer::MotionAnalyzer(int train_samp_num)
 {
-
+	TRAIN_SAMP_NUM = train_samp_num;
 }
 
 float MotionAnalyzer::Predict(const Mat& feat) 
@@ -56,9 +56,9 @@ CrowdAnalyzer::CrowdAnalyzer(int imgw, int imgh, Point frame_grid)
 		grids[i].resize(grid_x);
 		for (int j = 0; j < grid_x; j++) {
 			grids[i][j].grid_box = Rect(grid_sz.x*j, grid_sz.y*i, grid_sz.x, grid_sz.y);
+			analyzers[i][j] = MotionAnalyzer(AnalyzerParams::TRAIN_SAMPLE_NUM);
 		}
 	}
-		
 }
 
 bool CrowdAnalyzer::ValidateFeat(const Mat& feat) {
@@ -96,8 +96,18 @@ void CrowdAnalyzer::ExtractCrowdFeature(Mat& prev_frame_color, Mat& cur_frame_co
 	motion_mask = frame_diff >= 20;
 	// compute optical flow
 	Mat flow;
-	//calcOpticalFlowSF(prev_frame_color, cur_frame_color, flow, 3, 2, 4, 4.1, 25.5, 18, 55.0, 25.5, 0.35, 18, 55.0, 25.5, 10);
-	calcOpticalFlowFarneback(prev_frame_gray, cur_frame_gray, flow, 0.5, 3, 10, 5, 5, 1.2, 0);
+	if (AnalyzerParams::USE_GPU) {
+		gpu::GpuMat gpu_flow_x, gpu_flow_y;
+		gpu::GpuMat gpu_prev_frame(prev_frame_gray), gpu_cur_frame(cur_frame_gray);
+		gpu::FarnebackOpticalFlow gpu_fb_flow;
+		gpu_fb_flow(gpu_prev_frame, gpu_cur_frame, gpu_flow_x, gpu_flow_y);
+	}
+	else
+	{
+		//calcOpticalFlowSF(prev_frame_color, cur_frame_color, flow, 3, 2, 4, 4.1, 25.5, 18, 55.0, 25.5, 0.35, 18, 55.0, 25.5, 10);
+		calcOpticalFlowFarneback(prev_frame_gray, cur_frame_gray, flow, 0.5, 5, 10, 5, 5, 1.2, 0);
+	}
+
 	// smooth flow map
 	medianBlur(flow, flow, 5);
 	if (verbose) {
@@ -143,6 +153,7 @@ void CrowdAnalyzer::Process(Mat& cur_frame_color) {
 	vector<vector<Mat>> feats;
 	ExtractCrowdFeature(prev_frame_color, cur_frame_color, feats);
 
+#pragma omp parallel for
 	for (int r = 0; r < analyzers.size(); r++) {
 		for (int c = 0; c < analyzers[r].size(); c++) {
 			grids[r][c].score = 1;
@@ -163,7 +174,7 @@ void CrowdAnalyzer::DrawDetectionFrame(const Mat& color_img, Mat& oimg) {
 		for (size_t c = 0; c < grids[r].size(); c++) {
 			if (analyzers[r][c].hasInit) {
 				rectangle(oimg, grids[r][c].grid_box, CV_RGB(0, 255, 0), 2);
-				if (grids[r][c].score < ANOMALY_TH) {
+				if (grids[r][c].score < AnalyzerParams::ANOMALY_TH) {
 					rectangle(oimg, grids[r][c].grid_box, CV_RGB(255, 0, 0), 2);
 					if(verbose) cout << "anomaly score: " << grids[r][c].score << endl;
 				}

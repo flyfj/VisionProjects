@@ -14,6 +14,7 @@ public:
 	float score = 1;
 };
 
+
 class CrowdAnalyzer;
 
 class MotionAnalyzer
@@ -21,7 +22,8 @@ class MotionAnalyzer
 public:
 	friend CrowdAnalyzer;
 
-	MotionAnalyzer();
+	MotionAnalyzer() {}
+	MotionAnalyzer(int train_samp_num);
 
 	float Process(const Mat& feat);
 
@@ -33,10 +35,11 @@ private:
 	float Predict(const Mat& feat);
 
 	int samp_num = 0;
-	const int TRAIN_SAMP_NUM = 100;
+	int TRAIN_SAMP_NUM = 100;
 	Mat samps;
 	GaussDist1D analyzer;
 };
+
 
 
 class CrowdAnalyzer
@@ -60,14 +63,12 @@ private:
 	int grid_x = 1;
 	int grid_y = 1;
 	int samp_num = 0;
-	const float ANOMALY_TH = 1e-10;
 	const float MIN_FLOW_MAG = 0.5f;
 
 	Mat prev_frame_color;
 	Mat motion_mask;
 	vector<vector<FrameGrid>> grids;
 	vector<vector<MotionAnalyzer>> analyzers;
-
 };
 
 

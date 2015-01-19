@@ -7,6 +7,7 @@ VideoEventDemo::VideoEventDemo()
 
 void VideoEventDemo::RunVideo(string video_fn) {
 
+	cout << video_fn << endl;
 	VideoCapture capture(video_fn);
 	if (!capture.isOpened()) {
 		cerr << "Error opening video." << endl;
@@ -22,7 +23,7 @@ void VideoEventDemo::RunVideo(string video_fn) {
 
 		frame_id++;
 		if (frame_id == 1) {
-			analyzer = make_shared<CrowdAnalyzer>(frame.cols, frame.rows, Point(1, 1));
+			analyzer = make_shared<CrowdAnalyzer>(frame.cols, frame.rows, Point(AnalyzerParams::grid_x, AnalyzerParams::grid_y));
 			analyzer->verbose = false;
 		}
 
