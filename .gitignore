@@ -1,5 +1,9 @@
 /objs/
 *.asv
+*.mat
+*.jpg
+*.dll
+*.exe
 
 #################
 ## Eclipse
