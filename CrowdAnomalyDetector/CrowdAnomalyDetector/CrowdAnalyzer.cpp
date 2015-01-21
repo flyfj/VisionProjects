@@ -96,20 +96,28 @@ void CrowdAnalyzer::ExtractCrowdFeature(Mat& prev_frame_color, Mat& cur_frame_co
 	motion_mask = frame_diff >= 20;
 	// compute optical flow
 	Mat flow;
+	vector<Mat> flowxy;
 	if (AnalyzerParams::USE_GPU) {
 		gpu::GpuMat gpu_flow_x, gpu_flow_y;
 		gpu::GpuMat gpu_prev_frame(prev_frame_gray), gpu_cur_frame(cur_frame_gray);
 		gpu::FarnebackOpticalFlow gpu_fb_flow;
 		gpu_fb_flow(gpu_prev_frame, gpu_cur_frame, gpu_flow_x, gpu_flow_y);
+		flowxy.resize(2);
+		gpu_flow_x.download(flowxy[0]);
+		gpu_flow_y.download(flowxy[1]);
+		medianBlur(flowxy[0], flowxy[0], 5);
+		medianBlur(flowxy[1], flowxy[1], 5);
+		merge(flowxy, flow);
 	}
 	else
 	{
 		//calcOpticalFlowSF(prev_frame_color, cur_frame_color, flow, 3, 2, 4, 4.1, 25.5, 18, 55.0, 25.5, 0.35, 18, 55.0, 25.5, 10);
 		calcOpticalFlowFarneback(prev_frame_gray, cur_frame_gray, flow, 0.5, 5, 10, 5, 5, 1.2, 0);
+		// smooth flow map
+		medianBlur(flow, flow, 5);
+		split(flow, flowxy);
 	}
 
-	// smooth flow map
-	medianBlur(flow, flow, 5);
 	if (verbose) {
 		Mat cflow, cimg;
 		cimg = cur_frame_color.clone();
@@ -117,8 +125,6 @@ void CrowdAnalyzer::ExtractCrowdFeature(Mat& prev_frame_color, Mat& cur_frame_co
 	}
 
 	// use mean flow magnitude as feature
-	vector<Mat> flowxy;
-	split(flow, flowxy);
 	Mat flow_mag;
 	magnitude(flowxy[0], flowxy[1], flow_mag);
 	float max_val = 0;

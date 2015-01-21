@@ -16,6 +16,9 @@ parfor i=1:size(fns,1)
     binimg = grayimg > 0;
     % get object bounding box
     stats = regionprops(binimg, 'Area', 'BoundingBox');
+    if(size(stats,1) == 0)
+        continue;
+    end
     cc_sz = zeros(size(stats,1), 1);
     for j=1:size(cc_sz,1)
         cc_sz(j) = stats(j).Area;

@@ -87,8 +87,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\opencv249_cuda_x64\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv249_cuda_x64\lib;E:\Projects\Github\libconfig\bin\x64\Release\v120\dynamic;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv249\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Projects\Github\libconfig\bin\x64\Release\v120\dynamic;E:\opencv_build\lib\Release;$(LibraryPath)</LibraryPath>
     <Linkage-libconfig>
     </Linkage-libconfig>
     <RuntimeLibrary>MultiThreaded</RuntimeLibrary>

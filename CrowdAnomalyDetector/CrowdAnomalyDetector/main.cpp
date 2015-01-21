@@ -19,7 +19,7 @@ int AnalyzerParams::TRAIN_SAMPLE_NUM = 100;
 float AnalyzerParams::ANOMALY_TH = 1e-10;
 int AnalyzerParams::grid_x = 1;
 int AnalyzerParams::grid_y = 1;
-bool AnalyzerParams::USE_GPU = false;
+bool AnalyzerParams::USE_GPU = true;
 
 int main(int argc, char* argv[])
 {
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
 	cout << cv::gpu::getDevice() << endl;
 
-	//cout << cv::getBuildInformation() << endl;
+	cout << cv::getBuildInformation() << endl;
 
 	// load params
 	try
