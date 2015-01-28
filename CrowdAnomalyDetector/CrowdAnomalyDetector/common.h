@@ -12,7 +12,7 @@ using namespace std;
 #include <opencv2/gpu/gpu.hpp>
 using namespace cv;
 
-//#include <libconfig.hh>
+#include <libconfig.hh>
 
 
 class AnalyzerParams

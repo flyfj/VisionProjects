@@ -27,7 +27,9 @@ void VideoEventDemo::RunVideo(string video_fn) {
 			analyzer->verbose = false;
 		}
 
+		double start_t = cv::getTickCount();
 		analyzer->Process(frame);
+		cout << "Frame cost: " << (double)(cv::getTickCount() - start_t) / cv::getTickFrequency() << "s." << endl;
 		//putText(frame, string(str), Point(20, 20), CV_FONT_HERSHEY_PLAIN, 1.5, CV_RGB(0, 0, 255));
 		//cout << frame_id << " : " << prob << endl << endl;
 		Mat oimg;
