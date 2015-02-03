@@ -1,4 +1,4 @@
-function [ eig_vecs, obj_mean ] = comp_obj_subspace( obj_imgs )
+function [ eig_vecs, obj_mean ] = comp_obj_pca( obj_imgs )
 %COMP_OBJ_SUBSPACE Summary of this function goes here
 %   each row of obj_imgs is a image
 

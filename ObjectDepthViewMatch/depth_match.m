@@ -2,15 +2,15 @@
 addpath('C:\vlfeat-0.9.20-bin\toolbox\');
 vl_setup
 
-img_dir = 'F:\3D\ModelNet\test_db_depth2\';
-db_dir = 'F:\3D\ModelNet\depth_hog\';
+addpath('E:\Projects\Github\VisionToolbox\Common\Matlab\');
+
+db_dir = 'F:\3D\ModelNet\test_db_depth2\';
 query_dir = 'E:\Datasets\RGBD_Dataset\UW\rgbd-obj-dataset\rgbd-dataset\';
-query_list = 'uw_query.txt';
 new_sz = [64 64];
 
 %% prepare query
 % each category uses 10 queries
-query_cates = {'banana'; 'coffee_mug'; 'bowl'; 'keyboard';};
+query_cates = {'banana'; 'coffee_mug'; 'bowl'; 'keyboard'; 'food_box'};
 query_num_per_cate = 10;
 query_fns = cell(length(query_cates)*query_num_per_cate, 1);
 query_hog = zeros(length(query_fns), 1984);
@@ -61,23 +61,30 @@ for j=1:length(query_cates)
 end
 
 
-%% HOG L2
+%% load db
 
-db_hog = load('db_hog.mat');
-db_hog = db_hog.img_hogs;
-img_fns = load('db_fns.mat');
-img_fns = img_fns.img_files;
-img_fns = img_fns.';
-% append root dir
-for i=1:length(img_fns)
-    img_fns{i} = [img_dir img_fns{i}];
+if ~exist('db_hog', 'var')
+    db_hog = load('db_hog.mat');
+    db_hog = db_hog.img_hogs;
+end
+if ~exist('db_fns', 'var')
+    db_fns = load('db_fns.mat');
+    db_fns = db_fns.img_files;
+    db_fns = db_fns.';
+    % append root dir
+    for i=1:length(db_fns)
+        db_fns{i} = [db_dir db_fns{i}];
+    end
 end
 
-%% test
+%% hog l2
 
-ranked_res_fns = cell(length(query_fns), size(img_fns,2));
-rank_scores = zeros(length(query_fns), length(img_fns));
-for i=1:length(query_fns)
+% result data
+ranked_res_fns = cell(length(query_fns), size(db_fns,2));
+ranked_res_names = cell(length(query_fns), size(db_fns,2));
+rank_scores = zeros(length(query_fns), length(db_fns));
+
+for i=1:size(query_hog, 1)
     qhog = query_hog(i,:);
     qhog_mat = repmat(qhog, size(db_hog,1), 1);
     dists = abs(qhog_mat - db_hog).^2;
@@ -85,11 +92,44 @@ for i=1:length(query_fns)
     dists = sqrt(dists);
     [Y,I] = sort(dists, 1);
     rank_scores(i,:) = Y;
-    ranked_res_fns(i,:) = img_fns(1,I);
+    ranked_res_fns(i,:) = db_fns(1,I);
     disp(num2str(i));
 end
-%%
- visualize_search_res('res_bruteforce.html', query_fns, ranked_res_fns, 50);
+
+%% hog manifold
+
+% load
+if ~exist('db_manifolds', 'var')
+    db_manifolds = load('db_manifolds.mat');
+    db_manifolds = db_manifolds.db_manifolds;
+end
+
+% result data
+ranked_res_names = cell(length(query_fns), length(db_manifolds));
+rank_scores = zeros(length(query_fns), length(db_manifolds));
+
+% match
+for i=1:size(query_hog, 1)
+    qhog = query_hog(i,:);
+    % match each object manifold
+    dists = zeros(length(db_manifolds), 1);
+    names = cell(length(db_manifolds), 1);
+    for j=1:length(db_manifolds)
+        dists(j) = match_obj_manifold(qhog, 5, db_manifolds{j}.data);
+        names{j} = db_manifolds{j}.name;
+    end
+    [Y,I] = sort(dists, 1);
+    rank_scores(i,:) = Y;
+    ranked_res_names(i,:) = names(I)';
+    
+    disp(num2str(i));
+end
 
 
-%% 
+%% qualitative results
+visualize_search_res('res_bruteforce.html', query_fns, ranked_res_fns, 50);
+
+
+%% compute top K precision / accuracy
+comp_accu(query_fns, ranked_res_names)
+
