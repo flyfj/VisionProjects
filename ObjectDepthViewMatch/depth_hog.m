@@ -93,6 +93,8 @@ if ~exist('obj_map', 'var')
 end
 
 % for each object, compute manifold
+% manifold structure: name: object name; data: cluster data, mean, eigvectors and
+% member files
 obj_names = keys(obj_map);
 db_manifolds = cell(length(obj_names), 1);
 for i=1:length(obj_names)
@@ -108,6 +110,7 @@ save('db_manifolds.mat', 'db_manifolds', '-v7.3');
 visualize_imgs(db_manifolds{230}.data{4}.fns);
 
 %% simple test for hog performance
+% pick one query and do bruteforce matching
 qhog = db_hog(25042, :);
 tmp_ids = 25001:25100;
 tmp_hog = db_hog(tmp_ids, :);

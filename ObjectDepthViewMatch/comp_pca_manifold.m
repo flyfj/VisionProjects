@@ -6,7 +6,15 @@ function obj_manifold = comp_pca_manifold( obj_feats, obj_fns )
 
 % kmeans to get clusters
 cls_num = 6;
-[idx, centers] = kmeans(obj_feats, cls_num);
+[idx, centers] = kmeans(obj_feats, cls_num, 'Replicates', 5);
+% visualize clusters
+cls_fns = cell(size(centers, 1), 1);
+for i=1:length(cls_fns)
+    cls_fns{i} = obj_fns(find(idx==i));
+end
+
+visualize_clusters(cls_fns);
+pause
 
 % for each cluster, compute pca
 obj_manifold = cell(cls_num, 1);
