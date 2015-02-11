@@ -80,30 +80,42 @@ if ~exist('db_fns', 'var')
     db_fns = load('db_fns.mat');
     db_fns = db_fns.img_files;
     db_fns = db_fns.';
+    db_names = cell(size(db_fns));
     % append root dir
     for i=1:length(db_fns)
         db_fns{i} = [db_dir db_fns{i}];
+        parts = strsplit(db_fns{i}, '\');
+        tmp = strsplit(parts{5}, '__');
+        db_names{i} = [tmp{1} '__' tmp{2}];
     end
+    disp('loaded db files.');
 end
 
 %% hog l2
 
 % result data
 ranked_res_fns = cell(length(query_fns), size(db_fns,2));
-ranked_res_names = cell(length(query_fns), size(db_fns,2));
-rank_scores = zeros(length(query_fns), length(db_fns));
+% distance to all database view for each query view
+view_match_scores = zeros(length(query_fns), length(db_fns));
+% distance to all database object for each query view
+obj_match_scores = [];
+db_obj_names = [];  % non-duplicate object names for all db view
 
+% profile on
 for i=1:size(query_hog, 1)
     qhog = query_hog(i,:);
     qhog_mat = repmat(qhog, size(db_hog,1), 1);
     dists = abs(qhog_mat - db_hog).^2;
     dists = sum(dists, 2);
-    dists = sqrt(dists);
-    [Y,I] = sort(dists, 1);
-    rank_scores(i,:) = Y;
-    ranked_res_fns(i,:) = db_fns(1,I);
+    view_match_scores(i, :) = sqrt(dists);
+    
+    [db_obj_names, tmp] = view_score_to_obj_score(db_names, view_match_scores(i,:));
+    obj_match_scores = [obj_match_scores; tmp];
+    
+%     profile viewer
     disp(num2str(i));
 end
+
 
 %% hog manifold
 
@@ -114,31 +126,54 @@ if ~exist('db_manifolds', 'var')
 end
 
 % result data
-ranked_res_names = cell(length(query_fns), length(db_manifolds));
-rank_scores = zeros(length(query_fns), length(db_manifolds));
+db_obj_names = cell(1, length(db_manifolds));
+obj_match_scores = zeros(length(query_fns), length(db_manifolds));
 
 % match
 for i=1:size(query_hog, 1)
     qhog = query_hog(i,:);
     % match each object manifold
-    dists = zeros(length(db_manifolds), 1);
-    names = cell(length(db_manifolds), 1);
     for j=1:length(db_manifolds)
-        dists(j) = match_obj_manifold(qhog, 5, db_manifolds{j}.data);
-        names{j} = db_manifolds{j}.name;
+        obj_match_scores(i, j) = match_obj_manifold(qhog, 100, db_manifolds{j}.data);
+        if i>1
+            continue;
+        end
+        db_obj_names{1, j} = db_manifolds{j}.name;
     end
-    [Y,I] = sort(dists, 1);
-    rank_scores(i,:) = Y;
-    ranked_res_names(i,:) = names(I)';
     
     disp(num2str(i));
 end
 
+%%
+query_fns_comb = query_fns;
+obj_match_score_comb = obj_match_scores;
+
+%% multiview
+view_step = 5;
+query_num = length(query_fns) / view_step;
+query_fns_comb = cell(query_num, 1);
+obj_match_score_comb = zeros(query_num, size(obj_match_scores,2));
+for i=1:query_num
+    startid = (i-1)*view_step+1;
+    query_fns_comb{i} = query_fns{startid};
+    obj_match_score_comb(i,:) = mean(obj_match_scores(startid:startid+view_step-1, :), 1);
+    disp(num2str(i));
+end
 
 %% qualitative results
 visualize_search_res('res_bruteforce.html', query_fns, ranked_res_fns, 50);
 
-
 %% compute top K precision / accuracy
-comp_accu(query_fns, ranked_res_names, 5)
+
+% form result files
+ranked_scores = zeros(length(query_fns_comb), length(db_obj_names));
+ranked_res_names = cell(length(query_fns_comb), length(db_obj_names));
+for i=1:size(obj_match_score_comb,1)
+    [Y,I] = sort(obj_match_score_comb(i,:), 2);
+    ranked_scores(i,:) = Y;
+    ranked_res_names(i,:) = db_obj_names(1,I);
+end
+
+%%
+comp_accu(query_fns_comb, ranked_res_names, 5, 1)
 

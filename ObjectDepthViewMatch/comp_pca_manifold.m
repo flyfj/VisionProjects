@@ -5,27 +5,24 @@ function obj_manifold = comp_pca_manifold( obj_feats, obj_fns )
 %   each row is feature from an object view
 
 % kmeans to get clusters
-cls_num = 6;
+cls_num = 9;
 [idx, centers] = kmeans(obj_feats, cls_num, 'Replicates', 5);
-% visualize clusters
-cls_fns = cell(size(centers, 1), 1);
-for i=1:length(cls_fns)
-    cls_fns{i} = obj_fns(find(idx==i));
-end
-
-visualize_clusters(cls_fns);
-pause
 
 % for each cluster, compute pca
 obj_manifold = cell(cls_num, 1);
 for i=1:size(centers)
-    members = obj_feats(find(idx==i), :);
-    [obj_eig, obj_mean] = comp_obj_pca(members);
-    obj_manifold{i}.fns = obj_fns(find(idx==i));
-    obj_manifold{i}.eig = obj_eig;
+    member_ids = find(idx==i);
+    members = obj_feats(member_ids, :);
+    [obj_eigs, obj_mean] = comp_obj_pca(members);
+    obj_manifold{i}.fns = obj_fns(member_ids);
+    obj_manifold{i}.eigs = obj_eigs;
     obj_manifold{i}.mean = obj_mean;
     disp(['finished ' num2str(i) 'th cluster pca']);
 end
+
+% visualize clusters
+% visualize_clusters(obj_manifold);
+% pause
 
 end
 

@@ -97,7 +97,7 @@ end
 % member files
 obj_names = keys(obj_map);
 db_manifolds = cell(length(obj_names), 1);
-for i=1:length(obj_names)
+parfor i=1:length(obj_names)
     feat_ids = obj_map(obj_names{i});
     db_manifolds{i}.name = obj_names{i};
     db_manifolds{i}.data = comp_pca_manifold(db_hog(feat_ids, :), db_fns(feat_ids));
