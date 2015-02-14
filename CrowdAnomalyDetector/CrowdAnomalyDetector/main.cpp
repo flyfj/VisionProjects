@@ -7,6 +7,9 @@
 #pragma comment(lib, "opencv_highgui249d.lib")
 #pragma comment(lib, "opencv_imgproc249d.lib")
 #pragma comment(lib, "opencv_video249d.lib")
+#pragma comment(lib, "opencv_gpu249d.lib")
+#pragma comment(lib, "libconfig-x86-v120-mt-sgd-1_4_9_4.lib")
+
 #else
 #pragma comment(lib, "opencv_core249.lib")
 #pragma comment(lib, "opencv_highgui249.lib")
@@ -45,11 +48,18 @@ int main(int argc, char* argv[])
 	}
 
 	if (AnalyzerParams::USE_GPU) {
-		cout << "Using GPU device: " << cv::gpu::getDevice() << endl;
-		gpu::DeviceInfo gpu_info(gpu::getDevice());
-		cout << "GPU name: " << gpu_info.name() << endl;
-		cout << "GPU multiprocessor count: " << gpu_info.multiProcessorCount() << endl;
-		cout << "GPU total memory: " << gpu_info.totalMemory() << " , free memory: " << gpu_info.freeMemory() << endl;
+		try {
+			cout << "Using GPU device: " << cv::gpu::getDevice() << endl;
+			gpu::DeviceInfo gpu_info(gpu::getDevice());
+			cout << "GPU name: " << gpu_info.name() << endl;
+			cout << "GPU multiprocessor count: " << gpu_info.multiProcessorCount() << endl;
+			cout << "GPU total memory: " << gpu_info.totalMemory() << " , free memory: " << gpu_info.freeMemory() << endl;
+		}
+		catch (cv::Exception ex) {
+			cout << ex.msg << endl;
+			cout << "switch to cpu" << endl;
+			AnalyzerParams::USE_GPU = false;
+		}
 	}
 	else
 		cout << "Using CPU" << endl;
