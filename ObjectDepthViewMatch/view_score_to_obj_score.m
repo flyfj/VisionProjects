@@ -1,23 +1,16 @@
-function [ obj_new_names, obj_scores ] = view_score_to_obj_score( obj_names, view_scores )
+function [ obj_scores ] = view_score_to_obj_score( obj_ids, view_scores )
 %VIEW_SCORE_TO_OBJ_SCORE Summary of this function goes here
 %   convert view matching score to object matching score
 %   use smallest distance as distance to object
 
-assert(length(obj_names) == length(view_scores));
+assert(length(obj_ids) == length(view_scores));
 
-obj_map = containers.Map();
-for i=1:length(obj_names)
-    obj_id = obj_names{i};
-    if isKey(obj_map, obj_id) == 0
-        obj_map(obj_id) = inf;
-    end
-    obj_map(obj_id) = min(obj_map(obj_id), view_scores(i));
-end
+max_score = max(view_scores);
 
-obj_new_names = keys(obj_map);
-obj_scores = zeros(1, length(obj_new_names));
-for i=1:length(obj_new_names)
-    obj_scores(i) = obj_map(obj_new_names{i});
+obj_scores = zeros(1, length(unique(obj_ids))) * max_score;
+for i=1:length(view_scores)
+    cur_obj_id = obj_ids(i);
+    obj_scores(cur_obj_id) = min(obj_scores(cur_obj_id), view_scores(i));
 end
 
 end
