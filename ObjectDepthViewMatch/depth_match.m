@@ -42,27 +42,7 @@ if ~exist('db_manifolds', 'var')
     db_manifolds = db_manifolds.db_manifolds;
 end
 
-% result data
-db_obj_names = cell(1, length(db_manifolds));
-obj_match_scores = zeros(length(query_fns), length(db_manifolds));
 
-% match
-for i=1:1%size(query_hog, 1)
-    qhog = query_hog(i,:);
-    % match each object manifold
-    for j=1:length(db_manifolds)
-        obj_match_scores(i, j) = match_obj_manifold(qhog, 100, db_manifolds{j}.data);
-%         if obj_match_scores(i,j) == 0
-%             obj_match_scores(i,j) = 100;
-%         end
-        if i>1
-            continue;
-        end
-        db_obj_names{1, j} = db_manifolds{j}.name;
-    end
-    
-    disp(num2str(i));
-end
 
 %%
 query_fns_comb = query_fns;
@@ -84,15 +64,5 @@ end
 
 %% compute top K precision / accuracy
 
-% form result files
-ranked_scores = zeros(length(query_fns_comb), length(db_obj_names));
-ranked_res_names = cell(length(query_fns_comb), length(db_obj_names));
-for i=1:size(obj_match_score_comb,1)
-    [Y,I] = sort(obj_match_score_comb(i,:), 2);
-    ranked_scores(i,:) = Y;
-    ranked_res_names(i,:) = db_obj_names(1,I);
-end
 
-%%
-comp_accu(query_fns_comb, ranked_res_names, 5, 1)
 

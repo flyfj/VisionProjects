@@ -4,7 +4,7 @@ function [query_feats, query_fns] = prepare_depth_query(totrain, query_dir)
 
 new_sz = [64 64];
 query_cates = {'banana'; 'coffee_mug'; 'bowl'; 'keyboard'; 'food_box'};
-query_num_per_cate = 20;
+query_num_per_cate = 10;
 
 disp('preparing query depth...');
 
@@ -16,6 +16,7 @@ if totrain == 1
         cur_cate_root = [query_dir query_cates{j} '\'];
         cur_cate_subs = dir([cur_cate_root '*']);
         start = 0;
+        % loop subfolder
         for k=1:length(cur_cate_subs)
             if cur_cate_subs(k).isdir == 0 || ...
                 strcmp(cur_cate_subs(k).name, '.') == 1 || ...
@@ -65,10 +66,10 @@ if totrain == 1
     save('query_fns.mat', 'query_fns');
     save('query_hog.mat', 'query_feats');
 else
-    query_fns = load('query_fns.mat');
-    query_fns = query_fns.query_fns;
-    query_feats = load('query_hog.mat');
-    query_feats = query_feats.query_feats;
+    tmp = load('query_fns.mat');
+    query_fns = tmp.query_fns;
+    tmp = load('query_hog.mat');
+    query_feats = tmp.query_feats;
   
 end
 
