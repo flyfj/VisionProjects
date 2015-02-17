@@ -1,9 +1,10 @@
-function [query_feats, query_fns] = prepare_depth_query(totrain, query_dir)
+function [query_feats, query_fns, query_fn_cate_ids] = prepare_depth_query(totrain, query_dir)
 % prepare query
 % each category uses 10 queries
 
 new_sz = [64 64];
 query_cates = {'banana'; 'coffee_mug'; 'bowl'; 'keyboard'; 'food_box'};
+cate_ids = [3, 24, 6, 23, 7];
 query_num_per_cate = 10;
 
 disp('preparing query depth...');
@@ -11,6 +12,8 @@ disp('preparing query depth...');
 if totrain == 1
     query_fns = cell(length(query_cates)*query_num_per_cate, 1);
     query_feats = zeros(length(query_fns), 1984);
+    query_fn_cate_ids = zeros(length(query_fns), 1);
+    
     cnt = 1;
     for j=1:length(query_cates)
         cur_cate_root = [query_dir query_cates{j} '\'];
@@ -55,6 +58,7 @@ if totrain == 1
                 hog = vl_hog(single(curimg), cellSize, 'verbose');
                 query_feats(cnt, :) = hog(:)';
                 % increase
+                query_fn_cate_ids(cnt, 1) = cate_ids(j);
                 cnt = cnt + 1;
             end
 
@@ -63,14 +67,12 @@ if totrain == 1
 
     end
 
-    save('query_fns.mat', 'query_fns');
-    save('query_hog.mat', 'query_feats');
+    save('query_data.mat', 'query_feats', 'query_fns', 'query_fn_cate_ids', '-v7.3');
 else
-    tmp = load('query_fns.mat');
+    tmp = load('query_data.mat');
     query_fns = tmp.query_fns;
-    tmp = load('query_hog.mat');
     query_feats = tmp.query_feats;
-  
+    query_fn_cate_ids = tmp.query_fn_cate_ids;
 end
 
 disp('query depth ready.');
