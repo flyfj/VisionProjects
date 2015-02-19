@@ -1,12 +1,12 @@
-function [ db_manifolds ] = prepare_manifolds( totrain, saved_fn, feats, obj_ids )
+function [ db_manifolds ] = comp_manifolds( totrain, saved_fn, method, feats, obj_ids )
 %PREPARE_DEPTH_DB_MANIFOLD Summary of this function goes here
 %   input a set of features, each has an object id
 %   object id must start from 1 and continuous
 %   return a set of manifolds for each object id
 
 if totrain == 1
-    disp('computing manifolds...');
     
+    disp('computing manifolds...');
     unique_obj_ids = unique(obj_ids);
     % for each object, compute manifold
     db_manifolds = cell(length(unique_obj_ids), 1);
@@ -14,7 +14,12 @@ if totrain == 1
         feat_ids = find(obj_ids == unique_obj_ids(i));
         db_manifolds{i}.id = unique_obj_ids(i);
         % compute manifold
-        [mapped_data, mapping] = compute_mapping(feats(feat_ids, :), 'PCA', 0.9);
+        switch method
+            case 'pca'
+                [mapped_data, mapping] = compute_mapping(feats(feat_ids, :), 'PCA', 0.9);
+            case 'autoencoder'
+                [mapped_data, mapping] = compute_mapping(feats(feat_ids, :), 'Autoencoder');
+        end
         % comp_pca_manifold(db_feats(feat_ids, :), db_fns(feat_ids));
         db_manifolds{i}.data = mapping;
         disp([num2str(i) '/' num2str(length(unique_obj_ids)) ' manifold learned.']);
