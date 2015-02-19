@@ -10,6 +10,7 @@ class FrameGrid
 public:
 	Rect grid_box;
 	float score = 1;
+	bool anomaly_sign = false;
 };
 
 
@@ -48,7 +49,7 @@ public:
 
 	void ExtractCrowdFeature(Mat& prev_frame_color, Mat& cur_frame_color, vector<vector<Mat>>& feats);
 
-	void Process(Mat& cur_frame_color);
+	bool Process(Mat& cur_frame_color);
 
 	void DrawFlowMap(const Mat& flow, const Mat& color_img, Mat& cflowmap, int step, const Scalar& color, bool toshow = true);
 	void DrawDetectionFrame(const Mat& color_img, Mat& oimg);

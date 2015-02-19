@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <map>
+#include <fstream>
 #include <string>
 #include <memory>
 using namespace std;
@@ -23,5 +24,18 @@ public:
 	static int grid_x;
 	static int grid_y;
 	static bool USE_GPU;
+	// output runtime info
+	static string LOG_FILE;
+	// per-frame label for input videos
+	static string LABEL_FILE;
 };
 
+
+class Logger
+{
+public:
+	static void log(std::string msg, ofstream& fn_out) {
+		cout << msg << endl;
+		fn_out << msg << endl;
+	}
+};

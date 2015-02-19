@@ -147,24 +147,30 @@ void CrowdAnalyzer::ExtractCrowdFeature(Mat& prev_frame_color, Mat& cur_frame_co
 	}
 }
 
-void CrowdAnalyzer::Process(Mat& cur_frame_color) {
+bool CrowdAnalyzer::Process(Mat& cur_frame_color) {
 
 	// extract feature
 	samp_num++;
 	cout << "sample number: " << samp_num << endl;
 	if (prev_frame_color.empty()) {
 		cur_frame_color.copyTo(prev_frame_color);
-		return;
+		return false;
 	}
 	vector<vector<Mat>> feats;
 	ExtractCrowdFeature(prev_frame_color, cur_frame_color, feats);
 
+	bool ifAbnormal = false;
 #pragma omp parallel for
 	for (int r = 0; r < analyzers.size(); r++) {
 		for (int c = 0; c < analyzers[r].size(); c++) {
 			grids[r][c].score = 1;
+			grids[r][c].anomaly_sign = false;
 			if (ValidateFeat(feats[r][c])) {
 				grids[r][c].score = analyzers[r][c].Predict(feats[r][c]);
+				if (grids[r][c].score < AnalyzerParams::ANOMALY_TH) {
+					grids[r][c].anomaly_sign = true;
+					ifAbnormal = true;
+				}
 				if (!analyzers[r][c].hasInit)
 					analyzers[r][c].Update(feats[r][c]);
 			}
@@ -172,6 +178,8 @@ void CrowdAnalyzer::Process(Mat& cur_frame_color) {
 	}
 
 	cur_frame_color.copyTo(prev_frame_color);
+
+	return ifAbnormal;
 }
 
 void CrowdAnalyzer::DrawDetectionFrame(const Mat& color_img, Mat& oimg) {
@@ -180,7 +188,7 @@ void CrowdAnalyzer::DrawDetectionFrame(const Mat& color_img, Mat& oimg) {
 		for (size_t c = 0; c < grids[r].size(); c++) {
 			if (analyzers[r][c].hasInit) {
 				rectangle(oimg, grids[r][c].grid_box, CV_RGB(0, 255, 0), 2);
-				if (grids[r][c].score < AnalyzerParams::ANOMALY_TH) {
+				if (grids[r][c].anomaly_sign) {
 					rectangle(oimg, grids[r][c].grid_box, CV_RGB(255, 0, 0), 2);
 					if(verbose) cout << "anomaly score: " << grids[r][c].score << endl;
 				}

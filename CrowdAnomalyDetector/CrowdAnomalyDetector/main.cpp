@@ -8,7 +8,7 @@
 #pragma comment(lib, "opencv_imgproc249d.lib")
 #pragma comment(lib, "opencv_video249d.lib")
 #pragma comment(lib, "opencv_gpu249d.lib")
-#pragma comment(lib, "libconfig-x86-v120-mt-sgd-1_4_9_4.lib")
+//#pragma comment(lib, "libconfig-x86-v120-mt-sgd-1_4_9_4.lib")
 
 #else
 #pragma comment(lib, "opencv_core249.lib")
@@ -18,11 +18,15 @@
 #pragma comment(lib, "opencv_gpu249.lib")
 #endif
 
+// init parameters
 int AnalyzerParams::TRAIN_SAMPLE_NUM = 100;
 float AnalyzerParams::ANOMALY_TH = 1e-10;
 int AnalyzerParams::grid_x = 1;
 int AnalyzerParams::grid_y = 1;
 bool AnalyzerParams::USE_GPU = false;
+string AnalyzerParams::LOG_FILE = "log.txt";
+string AnalyzerParams::LABEL_FILE = "labels.txt";
+
 
 int main(int argc, char* argv[])
 {
@@ -35,16 +39,18 @@ int main(int argc, char* argv[])
 	try
 	{
 		libconfig::Config cfg;
-		cfg.readFile("app.cfg");
+		cfg.readFile("app.cfg");	// open file and validate
 		cfg.lookupValue("detector.train_sample_num", AnalyzerParams::TRAIN_SAMPLE_NUM);
 		cfg.lookupValue("detector.anomaly_th", AnalyzerParams::ANOMALY_TH);
 		cfg.lookupValue("detector.use_gpu", AnalyzerParams::USE_GPU);
 		cfg.lookupValue("detector.scene_grid.[0]", AnalyzerParams::grid_x);
 		cfg.lookupValue("detector.scene_grid.[1]", AnalyzerParams::grid_y);
+		cfg.lookupValue("detector.log_file", AnalyzerParams::LOG_FILE);
+		cfg.lookupValue("detector.label_file", AnalyzerParams::LABEL_FILE);
 	}
 	catch (std::exception e)
 	{
-		cerr << "Fail to load configuration file, will use default values instead." << endl;
+		cerr << "Fail to load configuration file, will use default values instead. Make sure the format of cfg file is correct." << endl;
 	}
 
 	if (AnalyzerParams::USE_GPU) {

@@ -176,7 +176,9 @@
     <ClCompile Include="VideoEventDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.cfg" />
+    <None Include="app.cfg">
+      <FileType>Document</FileType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
