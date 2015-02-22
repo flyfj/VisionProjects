@@ -1,7 +1,7 @@
 %% distance measure
 function score = match_obj_manifold(query_feat, obj_manifold, method)
     switch method
-        case 'PCA'
+        case 'pca'
             % compute reconstruction error
             centered = query_feat - obj_manifold.mean;   % 1xD
             pcs = obj_manifold.M';
