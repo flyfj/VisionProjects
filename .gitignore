@@ -5,6 +5,11 @@
 *.dll
 *.exe
 
+DeepLearnToolbox-master/
+drtoolbox/
+objs/
+data/
+
 #################
 ## Eclipse
 #################

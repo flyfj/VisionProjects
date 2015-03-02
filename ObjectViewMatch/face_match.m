@@ -37,6 +37,10 @@ end
 
 %% single query evaluate
 
+[p, r] = search_eval(query_ids, db_ids, view_match_scores);
+
+%%
+
 ranked_res_ids = zeros(length(query_ids), length(db_ids));
 ranked_view_scores = zeros(size(ranked_res_ids));
 ranked_obj_ids = zeros(length(query_ids), length(unique(db_ids)));
