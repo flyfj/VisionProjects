@@ -1,18 +1,33 @@
-function [ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( totrain, protocol, split_id )
+function [ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( totrain, protocol, split_id, feat_type )
+%   prepare features for janus images
 %   each set is a cell entry
 
 janus_root = 'F:\Recognition\JANUS\CS0\';
-save_fn = sprintf('janus_split%d_%s.mat', split_id, protocol);
+save_fn = sprintf('janus_split%d_%s_%s.mat', split_id, protocol, feat_type);
 
 if totrain == 1
-        
-    % process gallery
+    
+    % load images
+    %  gallery
     gal_csv_fn = sprintf('%sprotocol/split%d/test_%d_%s_gal.csv', janus_root, split_id, split_id, protocol);
-    [gal_feats, gal_ids] = enroll_faces(janus_root, gal_csv_fn);
-
+    [gal_feats, gal_ids] = enroll_face_imgs(janus_root, gal_csv_fn);
     % probe
     probe_csv_fn = sprintf('%sprotocol/split%d/test_%d_%s_probe.csv', janus_root, split_id, split_id, protocol);
-    [probe_feats, probe_ids] = enroll_faces(janus_root, probe_csv_fn);
+    [probe_feats, probe_ids] = enroll_face_imgs(janus_root, probe_csv_fn);
+    
+    % extract features
+    switch feat_type
+        case 'fv'
+            [gal_feats, probe_feats] = extract_fv(0, gal_feats, probe_feats, 0);
+        case 'pixel'
+            for i=1:length(gal_feats)
+                gal_feats{i} = gal_feats{i} ./ 255;
+            end
+            for i=1:length(probe_feats)
+                probe_feats{i} = probe_feats{i} ./ 255;
+            end
+    end
+    
 
     % save
     save(save_fn, 'gal_feats', 'gal_ids', 'probe_feats', 'probe_ids');
@@ -37,7 +52,7 @@ end
 
 
 %% tool function to process one csv file
-function [feats, ids] = enroll_faces(janus_root, csv_fn)
+function [feats, ids] = enroll_face_imgs(janus_root, csv_fn)
     
 face_sz = [60, 60];
 

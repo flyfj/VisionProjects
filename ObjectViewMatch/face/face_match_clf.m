@@ -14,20 +14,27 @@ test_data = [];
 test_labels = [];
 
 for i=1:length(gal_feats)
-    train_data = [train_data; gal_feats{i}./255];
+    train_data = [train_data; gal_feats{i}];
     train_labels = [train_labels; repmat(gal_ids(i), size(gal_feats{i},1), 1)];
 end
 for i=1:length(probe_feats)
-    test_data = [test_data; probe_feats{i}./255];
+    test_data = [test_data; probe_feats{i}];
     test_labels = [test_labels; repmat(probe_ids(i), size(probe_feats{i},1), 1)];
 end
 
+train_data = double(train_data);
+test_data = double(test_data);
 train_labels = double(train_labels);
 test_labels = double(test_labels);
 
-model = svmtrain(train_labels, train_data, '-v 5');
-[predicted_label, accuracy, prob_estimates] = svmpredict(test_labels, test_data, model);
+model = svmtrain(train_labels, train_data, '-b 1');
 
+% compute similarity
+for i=1:length(probe_feats)
+    test_labels = repmat(probe_ids(i), size(probe_feats{i},1), 1);
+    [predicted_label, accuracy, prob_estimates] = svmpredict(double(test_labels), probe_feats{i}, model, '-b 1');
+    sim_scores(i,:) = max(prob_estimates, [], 1);
+end
 
 
 

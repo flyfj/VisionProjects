@@ -1,13 +1,13 @@
 % pipeline of running janus data from loading to evaluation
 
 %% load janus data
-[ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( 1, 'A', 1 );
+[ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( 1, 'A', 1, 'pixel' );
 
 
 %% compute matching score
 
 % 0: l2; 1: clf; 2:fisher
-match_type = 2;
+match_type = 1;
 
 switch match_type
     case 0
