@@ -39,6 +39,8 @@ end
 %% tool function to process one csv file
 function [feats, ids] = enroll_faces(janus_root, csv_fn)
     
+face_sz = [60, 60];
+
 gal_csv = importdata(csv_fn);
 % parse template ids as instance ids
 template_ids = zeros(size(gal_csv.textdata, 1)-1, 1);
@@ -55,7 +57,7 @@ for i=1:set_num
    disp(sprintf('loading template %d/%d...', i, set_num));
    
    set_row_ids = find(template_ids == unique_template_ids(i));
-   cur_set_faces = zeros(length(set_row_ids), 400);
+   cur_set_faces = zeros(length(set_row_ids), face_sz(1)*face_sz(2));
    for j=1:length(set_row_ids)
        % file name
         cur_fn = [janus_root 'faces\' gal_csv.textdata{set_row_ids(j)+1, 3}];
@@ -66,7 +68,7 @@ for i=1:set_num
         if length(size(face_img)) == 3
             face_img = rgb2gray(face_img);
         end
-       face_img = imresize(face_img, [20, 20]);
+       face_img = imresize(face_img, face_sz);
        %-- TODO: replace to any feature extraction code --%
        cur_set_faces(j, :) = face_img(:);
    end
