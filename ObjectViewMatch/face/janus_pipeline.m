@@ -1,12 +1,21 @@
 % pipeline of running janus data from loading to evaluation
 
 %% load janus data
-[ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( 1, 'A', 1 );
+[ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( 0, 'A', 1 );
 
 
 %% compute matching score
 
-sim_scores = face_match_l2(probe_feats, gal_feats);
+% 0: l2; 1: clf
+match_type = 1;
+
+switch match_type
+    case 0
+        sim_scores = face_match_l2(probe_feats, gal_feats);
+    case 1
+        sim_scores = face_match_clf(probe_feats, probe_ids, gal_feats, gal_ids);
+end
+
 
 
 %% evaluation

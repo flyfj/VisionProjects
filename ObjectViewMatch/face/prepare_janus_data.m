@@ -25,7 +25,10 @@ else
         return;
     end
     tmp = load(save_fn);
-    [gal_feats, gal_ids, probe_feats, probe_ids] = tmp;
+    gal_feats = tmp.gal_feats;
+    gal_ids = tmp.gal_ids;
+    probe_feats = tmp.probe_feats;
+    probe_ids = tmp.probe_ids;
     
     disp('janus data loaded.');
 end
