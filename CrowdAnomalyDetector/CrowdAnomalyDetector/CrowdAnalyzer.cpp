@@ -70,7 +70,7 @@ bool CrowdAnalyzer::ValidateFeat(const Mat& feat) {
 
 void CrowdAnalyzer::DrawFlowMap(const Mat& flow, const Mat& color_img, Mat& cflowmap, int step, const Scalar& color, bool toshow) {
 	cflowmap = color_img.clone();
-	float arrow_length = 3;
+	float arrow_length = 10;
 	for (int y = 0; y < cflowmap.rows; y += step) {
 		for (int x = 0; x < cflowmap.cols; x += step)
 		{

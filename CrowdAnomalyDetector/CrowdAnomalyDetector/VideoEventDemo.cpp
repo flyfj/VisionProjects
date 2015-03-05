@@ -38,7 +38,7 @@ void VideoEventDemo::RunVideo(string video_fn) {
 		Mat oimg;
 		analyzer->DrawDetectionFrame(frame, oimg);
 		imshow("frame", oimg);
-		if (waitKey(10) == 'q')
+		if (waitKey(0) == 'q')
 			break;
 	}
 
