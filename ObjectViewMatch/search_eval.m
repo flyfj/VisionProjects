@@ -1,13 +1,13 @@
-function [avg_pre, avg_recall] = search_eval( query_ids, db_ids, scores )
+function [avg_pre, avg_recall, sel_ranks] = search_eval( query_ids, db_ids, dists )
 %SEARCH_EVALUATOR Summary of this function goes here
 %   evaluate search accuracy
 %   scores is a matrix, each row is for each query, each col is for each db
 %   item
 %   method could be: 1) precision; 2) recall; 3) pr
 
-assert(size(scores,1) == length(query_ids));
+assert(size(dists,1) == length(query_ids));
 
-pts_num = 20;
+pts_num = 50;
 sel_ranks = 1: length(db_ids)/pts_num: length(db_ids);
 sel_ranks = int32(sel_ranks);
 
@@ -15,17 +15,15 @@ avg_pre = zeros(1, length(sel_ranks));
 avg_recall = zeros(1, length(sel_ranks));
 
 for i=1:length(query_ids)
-    [~,I] = sort(scores(i,:), 2);
+    [~,I] = sort(dists(i,:), 2);
     ranked_ids = db_ids(I) == query_ids(i);
     ranked_corr = cumsum(ranked_ids);
-    cnt = 0;
     for j=1:length(sel_ranks)
-        cnt = cnt + 1;
         % save results
-        precision = ranked_corr(sel_ranks(j)) / sel_ranks(j);
+        precision = ranked_corr(sel_ranks(j)) / double(sel_ranks(j));
         recall = ranked_corr(sel_ranks(j)) / ranked_corr(end);
-        avg_pre(cnt) = avg_pre(cnt) + precision;
-        avg_recall(cnt) = avg_recall(cnt) + recall;
+        avg_pre(j) = avg_pre(j) + precision;
+        avg_recall(j) = avg_recall(j) + recall;
     end
 end
 
@@ -34,12 +32,22 @@ for i=1:length(avg_pre)
     avg_recall(i) = avg_recall(i) / length(query_ids);
 end
 
-% draw curve
+figure
+subplot(1, 2, 1)
+% draw pr curve
+title('pr curve')
 xlabel('recall'); hold on
 ylabel('precision'); hold on
 grid on; hold on
 plot(avg_recall, avg_pre, 'r-')
 
+subplot(1,2,2)
+% draw rank precision curve
+title('rank curve')
+xlabel('rank'); hold on
+ylabel('precision'); hold on
+grid on; hold on
+plot(sel_ranks, avg_pre, 'ro-')
 
 
 end

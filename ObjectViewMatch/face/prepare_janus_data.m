@@ -27,7 +27,6 @@ if totrain == 1
                 probe_feats{i} = probe_feats{i} ./ 255;
             end
     end
-    
 
     % save
     save(save_fn, 'gal_feats', 'gal_ids', 'probe_feats', 'probe_ids');

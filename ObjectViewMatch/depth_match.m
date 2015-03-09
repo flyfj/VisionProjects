@@ -2,8 +2,6 @@
 addpath('C:\vlfeat-0.9.20-bin\toolbox\');
 vl_setup
 
-
-
 db_dir = 'F:\3D\ModelNet\test_db_depth2\';
 query_dir = 'F:\RGBD_Dataset\UW\rgbd-obj-dataset\rgbd-dataset\';
 new_sz = [64 64];

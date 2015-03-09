@@ -1,76 +1,67 @@
 
-function [ db_feats, db_fns, db_obj_cates, db_fn_cate_ids, db_obj_names, db_fn_obj_ids] = prepare_depth_db( totrain, db_dir )
+function [ db_feats, db_cate_ids] = prepare_depth_db( totrain, feat_type )
 %PREPARE_DATA Summary of this function goes here
 %   prepare synthesized depth data
 new_sz = [64 64];
+db_dir = 'F:\3D\ModelNet\test_db_depth\';
 
 disp('preparing db depth...');
 
 if totrain == 1
-    % extract image and feature
-    imgfns = dir([db_dir '*.png']);
-    [m,n] = size(imgfns);
-    db_feats = zeros(m, 8*8*31);
-    db_fns = cell(m, 1);
-    parfor i=1:m
-        curfn = [db_dir imgfns(i).name];
-        db_fns{i,1} = imgfns(i).name;
-        curimg = imread(curfn);
-        curimg = mat2gray(curimg);
-        curimg = imresize(curimg, new_sz);
-        % compute hog
-        cellSize = 8;
-        hog = vl_hog(single(curimg), cellSize, 'verbose');
-        db_feats(i, :) = hog(:)';
-
-        disp([num2str(i) '|' num2str(m)]);
-    end
-    
-    disp('extracting db object names...');
-    db_obj_cates = cell(0);
-    db_fn_cate_ids = zeros(length(db_fns), 1);
-    db_obj_names = cell(0); % corresponding db obj name
-    db_fn_obj_ids = zeros(length(db_fns), 1);
-    
-    cate_map = containers.Map();
-    obj_map = containers.Map();
-    for i=1:length(db_fns)
-        % get db object name
-        db_fns{i} = [db_dir db_fns{i}];
-        parts = strsplit(db_fns{i}, '\');
-        tmp = strsplit(parts{5}, '__');
+    objdirs = dir([db_dir '*.*']);
+    objdirs(1:2) = [];
+    db_feats = cell(length(objdirs), 1);
+    db_cate_ids = zeros(length(objdirs), 1);
+    db_cate_names = containers.Map();
+    % each object
+    for i=1:length(objdirs)
         
-        % object category
-        obj_cate = tmp{1};
-        if isKey(cate_map, obj_cate) == 0
-            db_obj_cates = [db_obj_cates; obj_cate];
-            cate_map(obj_cate) = length(db_obj_cates);
-            disp(['added category: ' obj_cate]);
-        end
-        db_fn_cate_ids(i) = cate_map(obj_cate);
+        disp(['processing ' objdirs(i).name]);
         
-        % object id
-        obj_id = [tmp{1} '__' tmp{2}];
-        if isKey(obj_map, obj_id) == 0
-            db_obj_names = [db_obj_names; obj_id];
-            obj_map(obj_id) = length(db_obj_names);
-            disp(['added object: ' obj_id]);
+        % assign cate id
+        tmp = strsplit(objdirs(i).name, '__');
+        cate_name = tmp{1};
+        if ~isKey(db_cate_names, cate_name)
+            db_cate_names(cate_name) = i;
         end
-        db_fn_obj_ids(i) = obj_map(obj_id);
+        db_cate_ids(i) = db_cate_names(cate_name);
+        
+        % extract feature
+        obj_feats = [];
+        obj_root = [db_dir '\' objdirs(i).name '\'];
+        imgfns = dir([obj_root '*.png']);
+        m = length(imgfns);
+        parfor j=1:m
+            curfn = [obj_root imgfns(j).name];
+            curimg = imread(curfn);
+            curimg = mat2gray(curimg);
+            curimg = imresize(curimg, new_sz);
+            switch feat_type
+                case 'hog'
+                    cellSize = 8;
+                    hog = vl_hog(single(curimg), cellSize);
+                    obj_feats = [obj_feats; hog(:)'];
+                case 'pixel'
+                    obj_feats = [obj_feats; curimg(:)' ./ 255];
+            end
+            disp([num2str(i) ' : ' num2str(j) '/' num2str(m)]);
+        end
+        disp('feature extracted.');
+        
+        db_feats{i} = obj_feats;
         
     end
 
-    save('depth_db_data.mat', 'db_feats', 'db_fns', 'db_obj_cates', 'db_fn_cate_ids', 'db_obj_names', 'db_fn_obj_ids', '-v7.3');
+    % save
+    db_cate_names = db_cate_names.keys';
+    save('depth_db_data.mat', 'db_feats', 'db_cate_ids', 'db_cate_names', '-v7.3');
     disp('done.');
 
 else
     tmp = load('depth_db_data.mat');
     db_feats = tmp.db_feats;
-    db_fns = tmp.db_fns;
-    db_obj_cates = tmp.db_obj_cates;
-    db_fn_cate_ids = tmp.db_fn_cate_ids;
-    db_obj_names = tmp.db_obj_names;
-    db_fn_obj_ids = tmp.db_fn_obj_ids;
+    db_cate_ids = tmp.db_cate_ids;
+    db_cate_names = tmp.db_cate_names;
     
 end
 
