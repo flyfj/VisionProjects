@@ -3,7 +3,7 @@ function [ db_feats, db_cate_ids] = prepare_depth_db( totrain, feat_type )
 %PREPARE_DATA Summary of this function goes here
 %   prepare synthesized depth data
 new_sz = [64 64];
-db_dir = 'F:\3D\ModelNet\test_db_depth\';
+db_dir = 'F:\3D\ModelNet\test_db_depth2\';
 
 disp('preparing db depth...');
 
@@ -14,6 +14,7 @@ if totrain == 1
     db_cate_ids = zeros(length(objdirs), 1);
     db_cate_names = containers.Map();
     % each object
+    cnt = 0;
     for i=1:length(objdirs)
         
         disp(['processing ' objdirs(i).name]);
@@ -22,7 +23,8 @@ if totrain == 1
         tmp = strsplit(objdirs(i).name, '__');
         cate_name = tmp{1};
         if ~isKey(db_cate_names, cate_name)
-            db_cate_names(cate_name) = i;
+            cnt = cnt + 1;
+            db_cate_names(cate_name) = cnt;
         end
         db_cate_ids(i) = db_cate_names(cate_name);
         

@@ -5,14 +5,14 @@ VideoEventDemo::VideoEventDemo()
 {
 }
 
-void VideoEventDemo::RunVideo(string video_fn) {
+void VideoEventDemo::Run(string data_src) {
 
 	ofstream logger(AnalyzerParams::LOG_FILE);
 	
-	Logger::log("input video: " + video_fn, logger);
-	VideoCapture capture(video_fn);
+	Logger::log("input data source: " + data_src, logger);
+	VideoCapture capture(data_src);
 	if (!capture.isOpened()) {
-		Logger::log("Error opening video.", logger);
+		Logger::log("Error opening data source.", logger);
 		return;
 	}
 
@@ -45,6 +45,7 @@ void VideoEventDemo::RunVideo(string video_fn) {
 	EvalAccuracy();
 
 }
+
 
 void VideoEventDemo::EvalAccuracy() {
 	try

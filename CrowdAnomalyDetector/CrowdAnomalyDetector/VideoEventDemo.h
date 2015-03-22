@@ -9,7 +9,7 @@ class VideoEventDemo
 public:
 	VideoEventDemo();
 
-	void RunVideo(string video_fn);
+	void Run(string data_src);
 
 	void EvalAccuracy();
 

@@ -28,6 +28,8 @@ public:
 	static string LOG_FILE;
 	// per-frame label for input videos
 	static string LABEL_FILE;
+	static bool USE_IP_CAM;
+	static string cam_url;
 };
 
 

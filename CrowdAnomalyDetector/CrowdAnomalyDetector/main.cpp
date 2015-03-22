@@ -26,15 +26,11 @@ int AnalyzerParams::grid_y = 1;
 bool AnalyzerParams::USE_GPU = false;
 string AnalyzerParams::LOG_FILE = "log.txt";
 string AnalyzerParams::LABEL_FILE = "labels.txt";
-
+bool AnalyzerParams::USE_IP_CAM = false;
+string AnalyzerParams::cam_url = "";
 
 int main(int argc, char* argv[])
 {
-	if (argc != 2) {
-		cerr << "Usage: program.exe video_path. Use app.cfg to change settings." << endl;
-		return -1;
-	}
-
 	// load params
 	try
 	{
@@ -47,6 +43,9 @@ int main(int argc, char* argv[])
 		cfg.lookupValue("detector.scene_grid.[1]", AnalyzerParams::grid_y);
 		cfg.lookupValue("detector.log_file", AnalyzerParams::LOG_FILE);
 		cfg.lookupValue("detector.label_file", AnalyzerParams::LABEL_FILE);
+		// camera module
+		cfg.lookupValue("detector.use_cam", AnalyzerParams::USE_IP_CAM);
+		cfg.lookupValue("detector.cam_url", AnalyzerParams::cam_url);
 	}
 	catch (std::exception e)
 	{
@@ -70,11 +69,21 @@ int main(int argc, char* argv[])
 	else
 		cout << "Using CPU" << endl;
 
-	string video_fn(argv[1]);
-	
+	string data_src = "";
+	if (AnalyzerParams::USE_IP_CAM) {
+		data_src = AnalyzerParams::cam_url;
+	}
+	else {
+		// parse params
+		if (argc != 2) {
+			cerr << "Usage for video file: program.exe video_path. Use app.cfg to change settings." << endl;
+			return -1;
+		}
+		data_src = string(argv[1]);
+	}
 	VideoEventDemo demo;
-	demo.RunVideo(video_fn);
-
+	demo.Run(data_src);
+	
 	cout << endl << "Input anything to close the window: " << endl;
 	getchar();
 	return 0;

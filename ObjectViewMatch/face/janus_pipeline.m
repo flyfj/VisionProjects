@@ -1,7 +1,7 @@
 % pipeline of running janus data from loading to evaluation
 
 %% load janus data
-[ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( 1, 'A', 1, 'pixel' );
+[ gal_feats, gal_ids, probe_feats, probe_ids ] = prepare_janus_data( 0, 'A', 1, 'fv' );
 
 
 %% compute matching score
