@@ -2,8 +2,8 @@
 % pick subset from youtube
 unique_train_ids = unique(traingnd);
 unique_test_ids = unique(testgnd);
-% n = hist(traingnd, unique_train_ids)
-%hist(testgnd, unique_test_ids)
+hist(traingnd, unique_train_ids)
+% hist(testgnd, unique_test_ids)
 
 % randomly select 100 subjects
 sel_ids = randsample(unique_train_ids, 300);
@@ -21,5 +21,5 @@ for i=1:length(sel_ids)
     test_ids = [test_ids; testgnd(test_sel)];
 end
 
-save('youtube_face_subset.mat', 'train_data', 'train_ids', 'test_data', 'test_ids', '-v7.3');
+% save('youtube_face_subset.mat', 'train_data', 'train_ids', 'test_data', 'test_ids', '-v7.3');
 
