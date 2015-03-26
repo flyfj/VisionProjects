@@ -22,10 +22,11 @@ void MotionAnalyzer::Update(const Mat& feat)
 	}
 	else {
 		if (samp_num == TRAIN_SAMP_NUM) {
+			cout << "start to train the model..." << endl;
 			// init model
 			analyzer = GaussDist1D(samps);
 			hasInit = true;
-			cout << "Finish initializing." << endl;
+			cout << "Finish training." << endl;
 		}
 		analyzer.Update(feat.at<float>(0));
 	}
@@ -59,6 +60,8 @@ CrowdAnalyzer::CrowdAnalyzer(int imgw, int imgh, Point frame_grid)
 			analyzers[i][j] = MotionAnalyzer(AnalyzerParams::TRAIN_SAMPLE_NUM);
 		}
 	}
+
+	det_res_seq.reset();
 }
 
 bool CrowdAnalyzer::ValidateFeat(const Mat& feat) {
@@ -177,9 +180,13 @@ bool CrowdAnalyzer::Process(Mat& cur_frame_color) {
 		}
 	}
 
+	// update detection signs
+	for (auto a = 1; a < det_res_seq.size() - 1; a++) det_res_seq[a + 1] = det_res_seq[a];
+	det_res_seq[0] = ifAbnormal;
+
 	cur_frame_color.copyTo(prev_frame_color);
 
-	return ifAbnormal;
+	return det_res_seq.all();
 }
 
 void CrowdAnalyzer::DrawDetectionFrame(const Mat& color_img, Mat& oimg) {

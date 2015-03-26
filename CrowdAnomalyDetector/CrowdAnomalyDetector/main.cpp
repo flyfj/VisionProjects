@@ -1,6 +1,7 @@
 
 
 #include "VideoEventDemo.h"
+#include "Tools/IniParser.hpp"
 
 #ifdef _DEBUG
 #pragma comment(lib, "opencv_core249d.lib")
@@ -27,25 +28,31 @@ bool AnalyzerParams::USE_GPU = false;
 string AnalyzerParams::LOG_FILE = "log.txt";
 string AnalyzerParams::LABEL_FILE = "labels.txt";
 bool AnalyzerParams::USE_IP_CAM = false;
-string AnalyzerParams::cam_url = "";
+string AnalyzerParams::data_input = "";
 
 int main(int argc, char* argv[])
 {
+	// parse params
+	if (argc != 1) {
+		cerr << "No parameters needed. Use app.cfg to change settings." << endl;
+		return -1;
+	}
+
 	// load params
+	char str[300];
 	try
 	{
-		libconfig::Config cfg;
-		cfg.readFile("app.cfg");	// open file and validate
-		cfg.lookupValue("detector.train_sample_num", AnalyzerParams::TRAIN_SAMPLE_NUM);
-		cfg.lookupValue("detector.anomaly_th", AnalyzerParams::ANOMALY_TH);
-		cfg.lookupValue("detector.use_gpu", AnalyzerParams::USE_GPU);
-		cfg.lookupValue("detector.scene_grid.[0]", AnalyzerParams::grid_x);
-		cfg.lookupValue("detector.scene_grid.[1]", AnalyzerParams::grid_y);
-		cfg.lookupValue("detector.log_file", AnalyzerParams::LOG_FILE);
-		cfg.lookupValue("detector.label_file", AnalyzerParams::LABEL_FILE);
-		// camera module
-		cfg.lookupValue("detector.use_cam", AnalyzerParams::USE_IP_CAM);
-		cfg.lookupValue("detector.cam_url", AnalyzerParams::cam_url);
+		// NOTE: must pass path like this due to win32 api
+		IniParser parser(".\\app.ini");
+		AnalyzerParams::TRAIN_SAMPLE_NUM = parser.ReadInt("system", "train_sample_num");
+		AnalyzerParams::grid_x = parser.ReadInt("system", "scene_grid_x");
+		AnalyzerParams::grid_y = parser.ReadInt("system", "scene_grid_y");	
+		AnalyzerParams::ANOMALY_TH = parser.ReadFloat("system", "anomaly_th");
+		AnalyzerParams::USE_GPU = static_cast<bool>(parser.ReadInt("system", "use_gpu"));
+		AnalyzerParams::LOG_FILE = parser.ReadString("system", "log_file");
+		AnalyzerParams::LABEL_FILE = parser.ReadString("system", "label_file");
+		AnalyzerParams::USE_IP_CAM = static_cast<bool>(parser.ReadInt("data source", "use_cam"));
+		AnalyzerParams::data_input = parser.ReadString("data source", "input");
 	}
 	catch (std::exception e)
 	{
@@ -69,20 +76,8 @@ int main(int argc, char* argv[])
 	else
 		cout << "Using CPU" << endl;
 
-	string data_src = "";
-	if (AnalyzerParams::USE_IP_CAM) {
-		data_src = AnalyzerParams::cam_url;
-	}
-	else {
-		// parse params
-		if (argc != 2) {
-			cerr << "Usage for video file: program.exe video_path. Use app.cfg to change settings." << endl;
-			return -1;
-		}
-		data_src = string(argv[1]);
-	}
 	VideoEventDemo demo;
-	demo.Run(data_src);
+	demo.Run(AnalyzerParams::data_input);
 	
 	cout << endl << "Input anything to close the window: " << endl;
 	getchar();

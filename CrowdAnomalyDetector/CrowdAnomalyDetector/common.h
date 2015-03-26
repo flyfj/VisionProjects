@@ -6,14 +6,13 @@
 #include <map>
 #include <fstream>
 #include <string>
+#include <bitset>
 #include <memory>
 using namespace std;
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/gpu/gpu.hpp>
 using namespace cv;
-
-#include <libconfig.hh>
 
 
 class AnalyzerParams
@@ -29,7 +28,7 @@ public:
 	// per-frame label for input videos
 	static string LABEL_FILE;
 	static bool USE_IP_CAM;
-	static string cam_url;
+	static string data_input;
 };
 
 

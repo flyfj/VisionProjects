@@ -67,7 +67,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros">
-    <NuGetPackageImportStamp>3cd13ab4</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>2aba9c97</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
@@ -168,6 +168,7 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="CrowdAnalyzer.h" />
     <ClInclude Include="Distributions.h" />
+    <ClInclude Include="Tools\IniParser.hpp" />
     <ClInclude Include="VideoEventDemo.h" />
   </ItemGroup>
   <ItemGroup>
@@ -176,19 +177,10 @@
     <ClCompile Include="VideoEventDemo.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.cfg">
+    <None Include="app.ini">
       <FileType>Document</FileType>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\libconfig_vc120.1.4.9.4\build\native\libconfig_vc120.targets" Condition="Exists('..\packages\libconfig_vc120.1.4.9.4\build\native\libconfig_vc120.targets')" />
-  </ImportGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\libconfig_vc120.1.4.9.4\build\native\libconfig_vc120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libconfig_vc120.1.4.9.4\build\native\libconfig_vc120.targets'))" />
-  </Target>
+  <ImportGroup Label="ExtensionTargets" />
 </Project>

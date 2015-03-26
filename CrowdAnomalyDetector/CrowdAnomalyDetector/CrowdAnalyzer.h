@@ -11,6 +11,7 @@ public:
 	Rect grid_box;
 	float score = 1;
 	bool anomaly_sign = false;
+
 };
 
 
@@ -59,6 +60,8 @@ public:
 private:
 	bool ValidateFeat(const Mat& feat);
 
+	// sequence of detection result, used for eliminating noisy detection
+	bitset<3> det_res_seq;
 	int grid_x = 1;
 	int grid_y = 1;
 	int samp_num = 0;
