@@ -52,6 +52,10 @@ void VideoEventDemo::EvalAccuracy() {
 	{
 		// read in labels
 		ifstream in(AnalyzerParams::LABEL_FILE);
+		if (!in.is_open()) {
+			cerr << "label file not found." << endl;
+			return;
+		}
 
 		int frame_num = 0;
 		in >> frame_num;

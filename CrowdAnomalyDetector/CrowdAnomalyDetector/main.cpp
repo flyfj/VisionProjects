@@ -39,7 +39,6 @@ int main(int argc, char* argv[])
 	}
 
 	// load params
-	char str[300];
 	try
 	{
 		// NOTE: must pass path like this due to win32 api
