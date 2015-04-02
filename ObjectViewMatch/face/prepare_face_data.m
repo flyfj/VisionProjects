@@ -1,6 +1,7 @@
 function [ db_feats, db_ids, query_feats, query_ids ] = prepare_face_data( db_name )
 %PREPARE_FACE_DB Summary of this function goes here
 %   load face dataset
+%   each set is a cell
 
 if strcmp(db_name, 'honda')
     data_fn = 'F:\Recognition\ih_HONDA_video_data_label.mat';
@@ -27,6 +28,13 @@ if strcmp(db_name, 'honda')
     
     disp('honda data ready.');
     
+end
+if strcmp(db_name, 'youtube')
+    tmp = load('');
+    db_feats = cell(0);
+    db_ids = [];
+    query_feats = cell(0);
+    query_ids = [];
 end
 
 
