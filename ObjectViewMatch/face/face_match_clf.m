@@ -2,7 +2,7 @@ function [ dist_scores ] = face_match_clf( totrain, probe_feats, probe_ids, gal_
 %FACE_MATCH_CLF Summary of this function goes here
 %   use classifiers to measure similarity
 
-bitnum = 12;
+bitnum = 24;
 
 if totrain == 1
     %% prepare data
@@ -32,6 +32,7 @@ if totrain == 1
     svms = cell(length(gal_feats), 1);
     % sample_num x bitnum
     code_pool = zeros(size(train_data, 1), length(gal_feats));
+    % train binary svm for each set
     for i=1:length(gal_feats)
         train_labels = zeros(size(train_data,1),1);
         train_labels(train_samp_num(i):train_samp_num(i+1)-1) = 1;
@@ -42,7 +43,6 @@ if totrain == 1
             test_labels(test_samp_num(ids(j)):test_samp_num(ids(j)+1)-1) = 1;
         end
 
-        % train binary svm for each set
         svm = fitcsvm(train_data, train_labels, 'KernelFunction', 'linear', 'Standardize', true, 'Verbose', 1);
         % test prediction
         [labels, ~] = predict(svm, test_data);
@@ -86,10 +86,10 @@ if totrain == 1
     clear code_pool
     clear optimal_codes
 
-    save('svms.mat', 'svms', 'optimal_svms',  '-v7.3');
+    save('svms_24b.mat', 'svms', 'optimal_svms',  '-v7.3');
 
 else
-    tmp = load('svms.mat');
+    tmp = load('svms_24b.mat');
     svms = tmp.svms;
     optimal_svms = tmp.optimal_svms;
 end
