@@ -1,0 +1,60 @@
+Demo codes for the following paper
+ICML 2010 paper "Sequential Projection Learning for Hashing with Compact Codes"
+
+Please cite the following papers if using the dataset (1 Million SIFT feature) or the codes
+
+@InProceedings{SPLH:icml2010,
+  author =    {Wang, Jun and Kumar, Sanjiv and Chang, Shih-Fu},
+  title =     {Sequential Projection Learning for Hashing with Compact Codes},
+  booktitle = {Proceedings of the 27th International Conference on Machine Learning (ICML-10)},
+  pages =     {1127--1134},
+  year =      {2010},
+  editor =    {Johannes F{\"u}rnkranz and Thorsten Joachims},
+  address =   {Haifa, Israel},
+  month =     {June},
+  publisher = {Omnipress}
+} 
+
+@InProceedings{SSH:cvpr2010,
+   Author = {Wang, Jun and Kumar, Sanjiv and Chang, Shih-Fu},
+   Title = {Semi-Supervised Hashing for Scalable Image Retrieval},
+   BookTitle = {IEEE Computer Society Conference on Computer Vision and Pattern Recognition},
+   Address = {San Francisco, USA},
+   Month = {June},
+   pages = {3424 -- 3431},
+   Year = {2010}
+}
+
+by Jun Wang (jwang@ee.columbia.edu)
+Aug. 19, 2010
+
+Information of 1M dataset
+
+SIFT_trndata       1M samples, 128 dim, for training and construct hash table;
+SIFT_vaddata       10K samples, 128 dim, can be used for validation;
+SIFT_tstdata        10K samples, 128 dim, can be used for test;
+KNN_info          ground truth computed between SIFT_tstdata and SIFT_trndata (SIFT_tstdata as query samples and SIFT_trndata as queried database)
+                  returning 2 percentile points (20K from 1M) closest to a query.
+-	knn_p2     matrix of 10k by 20K indicates the index of nearest neighbors using l2 distance
+-	dis_p2     matrix of 10k by 20K indicates the distance of nearest neighbors using l2 distance
+
+for example:
+KNN_info. dis_p2(1001,1) = norm(SIFT_tstdata(1001,:)- SIFT_trndata(KNN_info. knn_p2(1001,1),:));
+
+
+
+Usage of the codes
+
+S3PLH_demo.m
+This is the demo for semi-supervised version of the sequential projection learning based hashing. It will generate similar results as that presented in
+the ICML paper Figure 3(a) (b) and Figure 5(a) (b)
+
+USPLH_demo.m
+This is the demo for unsupervised version of the sequential projection learning based hashing. It will generate the results of 48-bits. If you vary the
+bits from 12 to 64. It should generate the similar results as presented in Figure 6 of the ICML paper.
+
+ 
+The comparison with Spectral Hashing is also provided. Also this package uses some codes from the Spectral Hashing paper. Thanks for providing 
+the codes of SH. 
+
+Note that this algorithm is patented. Please use it only for research purpose. Contact the author of the codes if you want to apply to any commercial applications. Thanks.

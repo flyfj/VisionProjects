@@ -13,7 +13,7 @@ for i=1:length(probe_feats)
     disp(['probe: ' num2str(i)]);
 end
 
-sim_scores = 1 - sim_scores ./ max(sim_scores(:));
+% sim_scores = 1 - sim_scores ./ max(sim_scores(:));
 
 end
 
@@ -21,10 +21,7 @@ end
 function score = compare_sets(probe_set, gal_set)
 
 score = inf;
-for i=1:size(probe_set,1)
-    probe_repmat = repmat(probe_set(i,:), size(gal_set, 1), 1);
-    dists = sqrt(sum((probe_repmat-gal_set).^2, 2));
-    score = min(score, min(dists));
-end
+dists = pdist2(probe_set, gal_set);
+score = min(dists(:));
 
 end

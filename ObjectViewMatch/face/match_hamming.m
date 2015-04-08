@@ -22,6 +22,6 @@ function score = compare_sets(probe_set, gal_set)
 
 dists = pdist2(probe_set, gal_set, 'hamming');
 dists = floor(dists.*size(gal_set, 2));
-score = min(dists(:));
+score = mean(dists(:));
 
 end
