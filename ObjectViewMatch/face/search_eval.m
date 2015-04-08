@@ -1,4 +1,4 @@
-function [avg_pre, avg_recall, sel_ranks] = search_eval( query_ids, db_ids, dists )
+function [avg_pre, avg_recall, sel_ranks] = search_eval( query_ids, db_ids, dists, show )
 %SEARCH_EVALUATOR Summary of this function goes here
 %   evaluate search accuracy
 %   scores is a matrix, each row is for each query, each col is for each db
@@ -32,24 +32,25 @@ for i=1:length(avg_pre)
     avg_recall(i) = avg_recall(i) / length(query_ids);
 end
 
-figure
-subplot(1, 2, 1)
-% draw pr curve
-title('pr curve')
-xlabel('recall'); hold on
-ylabel('precision'); hold on
-axis([0 1 0 1]); hold on
-grid on; hold on
-plot(avg_recall, avg_pre, 'r-')
+if show==1
+    figure
+    subplot(1, 2, 1)
+    % draw pr curve
+    title('pr curve')
+    xlabel('recall'); hold on
+    ylabel('precision'); hold on
+    axis([0 1 0 1]); hold on
+    grid on; hold on
+    plot(avg_recall, avg_pre, 'r-')
 
-subplot(1,2,2)
-% draw rank precision curve
-title('rank curve')
-xlabel('rank'); hold on
-ylabel('precision'); hold on
-grid on; hold on
-plot(sel_ranks, avg_pre, 'ro-')
-
+    subplot(1,2,2)
+    % draw rank precision curve
+    title('rank curve')
+    xlabel('rank'); hold on
+    ylabel('precision'); hold on
+    grid on; hold on
+    plot(sel_ranks, avg_pre, 'ro-')
+end
 
 end
 
