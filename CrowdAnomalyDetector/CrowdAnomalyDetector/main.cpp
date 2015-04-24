@@ -12,11 +12,11 @@
 //#pragma comment(lib, "libconfig-x86-v120-mt-sgd-1_4_9_4.lib")
 
 #else
-#pragma comment(lib, "opencv_core249.lib")
-#pragma comment(lib, "opencv_highgui249.lib")
-#pragma comment(lib, "opencv_imgproc249.lib")
-#pragma comment(lib, "opencv_video249.lib")
-#pragma comment(lib, "opencv_gpu249.lib")
+#pragma comment(lib, "opencv_core2411.lib")
+#pragma comment(lib, "opencv_highgui2411.lib")
+#pragma comment(lib, "opencv_imgproc2411.lib")
+#pragma comment(lib, "opencv_video2411.lib")
+#pragma comment(lib, "opencv_gpu2411.lib")
 #endif
 
 // init parameters
@@ -29,6 +29,7 @@ string AnalyzerParams::LOG_FILE = "log.txt";
 string AnalyzerParams::LABEL_FILE = "labels.txt";
 bool AnalyzerParams::USE_IP_CAM = false;
 string AnalyzerParams::data_input = "";
+bool AnalyzerParams::DO_DEBUG = false;
 
 int main(int argc, char* argv[])
 {
@@ -43,6 +44,7 @@ int main(int argc, char* argv[])
 	{
 		// NOTE: must pass path like this due to win32 api
 		IniParser parser(".\\app.ini");
+		AnalyzerParams::DO_DEBUG = static_cast<bool>(parser.ReadInt("system", "debug"));
 		AnalyzerParams::TRAIN_SAMPLE_NUM = parser.ReadInt("system", "train_sample_num");
 		AnalyzerParams::grid_x = parser.ReadInt("system", "scene_grid_x");
 		AnalyzerParams::grid_y = parser.ReadInt("system", "scene_grid_y");	
@@ -55,7 +57,7 @@ int main(int argc, char* argv[])
 	}
 	catch (std::exception e)
 	{
-		cerr << "Fail to load configuration file, will use default values instead. Make sure the format of cfg file is correct." << endl;
+		cerr << "Fail to load configuration file, will use default values instead. Make sure the format of ini file is correct." << endl;
 	}
 
 	if (AnalyzerParams::USE_GPU) {

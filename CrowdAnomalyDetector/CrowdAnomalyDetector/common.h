@@ -23,6 +23,7 @@ public:
 	static int grid_x;
 	static int grid_y;
 	static bool USE_GPU;
+	static bool DO_DEBUG;
 	// output runtime info
 	static string LOG_FILE;
 	// per-frame label for input videos

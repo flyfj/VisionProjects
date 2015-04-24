@@ -2,7 +2,7 @@
 
 %% load face data
 
-[ db_feats, db_ids, query_feats, query_ids ] = prepare_face_data( 'honda' );
+[ db_feats, db_ids, query_feats, query_ids ] = prepare_face_data( 'youtube' );
 
 %% compute matching score
 
@@ -11,7 +11,7 @@ match_type = 1;
 
 switch match_type
     case 0
-        dists = face_match_l2(query_feats, db_feats);
+        dists = face_match_l2(query_feats(1:200), db_feats);
     case 1
         dists = face_match_clf(1, query_feats, query_ids, db_feats, db_ids);
     case 2
@@ -21,5 +21,5 @@ end
 
 %% evaluation
 
-[apr, ar, ranks] = search_eval( query_ids, db_ids, dists );
+[apr, ar, ranks] = search_eval( query_ids, db_ids, dists, 1 );
 

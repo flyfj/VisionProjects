@@ -2,7 +2,8 @@ function [ dist_scores ] = face_match_clf( totrain, probe_feats, probe_ids, gal_
 %FACE_MATCH_CLF Summary of this function goes here
 %   use classifiers to measure similarity
 
-bitnum = 24;
+bitnum = 12;
+svm_fn = 'youtube_svms_24b.mat';
 
 if totrain == 1
     %% prepare data
@@ -86,10 +87,10 @@ if totrain == 1
     clear code_pool
     clear optimal_codes
 
-    save('svms_24b.mat', 'svms', 'optimal_svms',  '-v7.3');
+    save(svm_fn, 'svms', 'optimal_svms',  '-v7.3');
 
 else
-    tmp = load('svms_24b.mat');
+    tmp = load(svm_fn);
     svms = tmp.svms;
     optimal_svms = tmp.optimal_svms;
 end

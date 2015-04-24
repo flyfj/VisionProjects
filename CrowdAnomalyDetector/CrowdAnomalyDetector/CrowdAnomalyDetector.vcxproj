@@ -82,8 +82,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\opencv249\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv249\opencv\build\x86\vc12\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\opencv2411\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\opencv2411\opencv\build\x86\vc12\lib;$(LibraryPath)</LibraryPath>
     <Linkage-libconfig>ltcg</Linkage-libconfig>
     <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
   </PropertyGroup>

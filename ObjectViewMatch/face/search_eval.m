@@ -5,7 +5,7 @@ function [avg_pre, avg_recall, sel_ranks] = search_eval( query_ids, db_ids, dist
 %   item
 %   method could be: 1) precision; 2) recall; 3) pr
 
-assert(size(dists,1) == length(query_ids));
+% assert(size(dists,1) == length(query_ids));
 
 pts_num = 100;
 sel_ranks = 1: length(db_ids)/pts_num: length(db_ids);
