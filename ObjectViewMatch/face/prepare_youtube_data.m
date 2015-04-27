@@ -2,7 +2,7 @@ function [ db_feats, db_ids, query_feats, query_ids ] = load_youtube_data(  )
 %LOAD_YOUTUBE_DATA Summary of this function goes here
 %   Detailed explanation goes here
 
-data_fn = 'n:\YouTube_Faces\youtube_face_subset20.mat';
+data_fn = 'n:\YouTube_Faces\youtube_face_subset1000.mat';
 data = load(data_fn);
 db_ids = unique(data.train_ids);
 db_feats = cell(length(db_ids), 1);

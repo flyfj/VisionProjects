@@ -3,47 +3,47 @@ function [ dist_scores ] = face_match_clf( totrain, probe_feats, probe_ids, gal_
 %   use classifiers to measure similarity
 
 bitnum = 12;
-svm_fn = 'youtube_svms_24b.mat';
+pool_size = 30;
+svm_fn = sprintf('youtube_svms_%db.mat', bitnum);
 
 if totrain == 1
     %% prepare data
-    train_data = [];
-    train_ids = [];
+    train_data = vertcat(gal_feats{:});
+    train_ids = [];     % corresponding id
     train_samp_num = zeros(length(gal_feats), 1);
     for i=1:length(gal_feats)
-        % form training data
-        train_data = [train_data; gal_feats{i}];
         train_ids = [train_ids; gal_ids(i)*ones(size(gal_feats{i},1),1)];
         train_samp_num(i) = size(gal_feats{i},1);
     end
     train_samp_num = [1; cumsum(train_samp_num)];
 
-    test_data = [];
+    test_data = vertcat(probe_feats{:});
     test_ids = [];
     test_samp_num = zeros(length(probe_feats), 1);
     for i=1:length(probe_feats)
-        % form training data
-        test_data = [test_data; probe_feats{i}];
         test_ids = [test_ids; probe_ids(i)*ones(size(probe_feats{i},1),1)];
         test_samp_num(i) = size(probe_feats{i},1);
     end
     test_samp_num = [1; cumsum(test_samp_num)];
-
+    
+    fprintf('sample created.\n');
     %% train binary svms
-    svms = cell(length(gal_feats), 1);
+    % randomly select pool sets
+    train_cls_ids = randsample(1:length(gal_feats), pool_size);
+    svms = cell(length(train_cls_ids), 1);
     % sample_num x bitnum
-    code_pool = zeros(size(train_data, 1), length(gal_feats));
-    % train binary svm for each set
-    for i=1:length(gal_feats)
+    code_pool = zeros(size(train_data, 1), length(pool_size));
+    % train binary svm for selected sets
+    for i=1:length(train_cls_ids)
+        cls_id = train_cls_ids(i);
         train_labels = zeros(size(train_data,1),1);
-        train_labels(train_samp_num(i):train_samp_num(i+1)-1) = 1;
-
-        ids = find(probe_ids==gal_ids(i));
+        train_labels(find(train_ids==cls_id)) = 1;
+        % samples in test data with the same id
+        ids = find(test_ids==cls_id);
         test_labels = zeros(size(test_data,1),1);
-        for j=1:length(ids)
-            test_labels(test_samp_num(ids(j)):test_samp_num(ids(j)+1)-1) = 1;
-        end
-
+        test_labels(ids) = 1;
+        
+        fprintf('training %dth svm\n', i);
         svm = fitcsvm(train_data, train_labels, 'KernelFunction', 'linear', 'Standardize', true, 'Verbose', 1);
         % test prediction
         [labels, ~] = predict(svm, test_data);

@@ -7,8 +7,9 @@ VideoEventDemo::VideoEventDemo()
 
 void VideoEventDemo::Run(string data_src) {
 
+	grid_scores.clear();
+
 	ofstream logger(AnalyzerParams::LOG_FILE);
-	
 	Logger::log("input data source: " + data_src, logger);
 	VideoCapture capture(data_src);
 	if (!capture.isOpened()) {
@@ -30,11 +31,23 @@ void VideoEventDemo::Run(string data_src) {
 			analyzer->verbose = AnalyzerParams::DO_DEBUG;
 		}
 
+		// perform detection
 		double start_t = cv::getTickCount();
 		bool det_sign = analyzer->Process(frame);
 		anomaly_signs.push_back(det_sign);
-		Logger::log("Frame cost: " + std::to_string((double)(cv::getTickCount() - start_t) / cv::getTickFrequency()) + "s.", logger);
+		Logger::log("Frame time cost: " + std::to_string((double)(cv::getTickCount() - start_t) / cv::getTickFrequency()) + "s.", logger);
 
+		// store detection scores
+		const vector<vector<FrameGrid>> grids = analyzer->GetGrids();
+		vector<vector<float>> cur_grid_scores(grids.size(), vector<float>(grids[0].size()));
+		for (size_t i = 0; i < grids.size(); i++) {
+			for (size_t j = 0; j < grids[i].size(); j++) {
+				cur_grid_scores[i][j] = grids[i][j].score;
+			}
+		}
+		grid_scores.push_back(cur_grid_scores);
+
+		// show result
 		Mat oimg;
 		analyzer->DrawDetectionFrame(frame, oimg);
 		imshow("frame", oimg);
@@ -42,10 +55,24 @@ void VideoEventDemo::Run(string data_src) {
 			break;
 	}
 
-	EvalAccuracy();
+	OutputResults("outputs.txt");
 
 }
 
+void VideoEventDemo::OutputResults(const string& savefn) 
+{
+	ofstream out(savefn);
+	out << grid_scores.size() << endl;
+	for (size_t id = 0; id < grid_scores.size(); id++) {
+		float max_score = 0;
+		for (size_t i = 0; i < grid_scores[id].size(); i++) {
+			for (size_t j = 0; j < grid_scores[id][i].size(); j++) {
+				max_score = std::max(grid_scores[id][i][j], max_score);
+			}
+		}
+		out << max_score << endl;
+	}
+}
 
 void VideoEventDemo::EvalAccuracy() {
 	try

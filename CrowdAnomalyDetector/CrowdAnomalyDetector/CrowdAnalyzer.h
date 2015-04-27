@@ -55,6 +55,8 @@ public:
 	void DrawFlowMap(const Mat& flow, const Mat& color_img, Mat& cflowmap, int step, const Scalar& color, bool toshow = true);
 	void DrawDetectionFrame(const Mat& color_img, Mat& oimg);
 
+	const vector<vector<FrameGrid>> GetGrids() const { return grids; }
+
 	bool verbose = false;
 
 private:

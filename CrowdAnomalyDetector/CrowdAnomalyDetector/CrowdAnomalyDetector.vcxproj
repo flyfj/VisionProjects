@@ -89,8 +89,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\opencv249\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Projects\Github\libconfig\bin\x64\Release\v120\dynamic;E:\opencv_build\lib\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\opencv2411\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\opencv2411\opencv\build\x64\vc12\lib;$(LibraryPath)</LibraryPath>
     <Linkage-libconfig>
     </Linkage-libconfig>
     <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -161,7 +161,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>libconfig.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
