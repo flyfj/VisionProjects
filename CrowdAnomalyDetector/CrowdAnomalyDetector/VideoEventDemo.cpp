@@ -57,6 +57,7 @@ void VideoEventDemo::Run(string data_src) {
 
 	OutputResults("outputs.txt");
 
+	EvalAccuracy();
 }
 
 void VideoEventDemo::OutputResults(const string& savefn) 

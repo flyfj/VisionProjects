@@ -12,11 +12,11 @@
 //#pragma comment(lib, "libconfig-x86-v120-mt-sgd-1_4_9_4.lib")
 
 #else
-#pragma comment(lib, "opencv_core2411.lib")
-#pragma comment(lib, "opencv_highgui2411.lib")
-#pragma comment(lib, "opencv_imgproc2411.lib")
-#pragma comment(lib, "opencv_video2411.lib")
-#pragma comment(lib, "opencv_gpu2411.lib")
+#pragma comment(lib, "opencv_core249.lib")
+#pragma comment(lib, "opencv_highgui249.lib")
+#pragma comment(lib, "opencv_imgproc249.lib")
+#pragma comment(lib, "opencv_video249.lib")
+#pragma comment(lib, "opencv_gpu249.lib")
 #endif
 
 // init parameters
