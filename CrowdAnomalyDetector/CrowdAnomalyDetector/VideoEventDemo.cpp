@@ -34,7 +34,7 @@ void VideoEventDemo::Run(string data_src) {
 		// perform detection
 		double start_t = cv::getTickCount();
 		bool det_sign = analyzer->Process(frame);
-		anomaly_signs.push_back(det_sign);
+		anomaly_signs.push_back(!det_sign);
 		Logger::log("Frame time cost: " + std::to_string((double)(cv::getTickCount() - start_t) / cv::getTickFrequency()) + "s.", logger);
 
 		// store detection scores
