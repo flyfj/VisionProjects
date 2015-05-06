@@ -1,1 +1,1 @@
-a general place to put all projects about vision research
+some experimental projects for vision
