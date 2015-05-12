@@ -18,6 +18,7 @@ void VideoEventDemo::Run(string data_src) {
 	}
 
 	int frame_id = 0;
+	double total_start_t = cv::getTickCount();
 	anomaly_signs.clear();
 	while (true) {
 		Mat frame;
@@ -54,6 +55,7 @@ void VideoEventDemo::Run(string data_src) {
 		if (waitKey(10) == 'q')
 			break;
 	}
+	Logger::log("total processing time: " + std::to_string((double)(cv::getTickCount() - total_start_t) / cv::getTickFrequency()) + "s.", logger);
 
 	OutputResults("outputs.txt");
 
